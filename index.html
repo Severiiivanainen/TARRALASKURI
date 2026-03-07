@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-<script>
-var password = prompt("HEIT SALASANA:");
-
-if (password !== "2021") {
-  alert("Ei pääsyä");
-  window.location.href = "https://google.com";
-}
-</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tarralaskuri</title>
@@ -26,6 +18,14 @@ if (password !== "2021") {
     }
     * { box-sizing: border-box; }
     body {
+      <script>
+var password = prompt("HEIT SALASANA:");
+
+if (password !== "2021") {
+  alert("Ei pääsyä");
+  window.location.href = "https://google.com";
+}
+</script>
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--bg);
