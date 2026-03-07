@@ -96,6 +96,7 @@
         <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="s-piece0">0,00 €</div></div>
         <div class="mini"><div class="k">Kappalehinta alv 25,5 %</div><div class="v" id="s-piece25">0,00 €</div></div>
         <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="s-area">0,000 m²</div></div>
+        <div class="mini"><div class="k">Kokonaispinta-ala</div><div class="v" id="s-totalarea">0,000 m²</div></div>
         <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="s-sqm">0,00 €/m²</div></div>
       </div>
     </div>
@@ -202,6 +203,7 @@
     byId('s-piece0').textContent = euroValue(piece0);
     byId('s-piece25').textContent = euroValue(piece25);
     byId('s-area').textContent = num3(area) + ' m²';
+    byId('s-totalarea').textContent = num3(totalArea) + ' m²';
     byId('s-sqm').textContent = num2(sqm) + ' €/m²';
   }
 
@@ -214,12 +216,14 @@
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
     var setup = 13;
-    var baseSqm = 52;
+    var baseSqm = 57;
 
-    if (totalArea >= 1) baseSqm = 52;
-    else if (qty <= 4) baseSqm = 57;
-    else if (qty <= 9) baseSqm = 54;
-    else baseSqm = 52;
+    // määräalennukset vasta kun kokonaispinta-ala on vähintään 0,5 m²
+    if (totalArea >= 0.5) {
+      if (qty <= 4) baseSqm = 57;
+      else if (qty <= 9) baseSqm = 54;
+      else baseSqm = 52;
+    }
 
     var lamAdd = 0;
     if (lam === 'normaali') lamAdd = 7;
