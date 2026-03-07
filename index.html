@@ -139,10 +139,15 @@
           <div class="result-label">Kokonaishinta alv 0 %</div>
           <div class="result-value" id="p-total0">0,00 €</div>
         </div>
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 25,5 %</div>
+          <div class="result-value" id="p-total25">0,00 €</div>
+        </div>
       </div>
 
       <div class="mini-grid">
         <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="p-piece0">0,00 €</div></div>
+        <div class="mini"><div class="k">Kappalehinta alv 25,5 %</div><div class="v" id="p-piece25">0,00 €</div></div>
         <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="p-area">0,000 m²</div></div>
         <div class="mini"><div class="k">Kokonaispinta-ala</div><div class="v" id="p-totalarea">0,000 m²</div></div>
         <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="p-sqm">0,00 €/m²</div></div>
@@ -224,9 +229,13 @@
     var sqm = baseSqm + lamAdd + transferAdd;
     var total0 = setup + area * qty * sqm;
     var piece0 = total0 / qty;
+    var total25 = total0 * 1.255;
+    var piece25 = piece0 * 1.255;
 
     byId('p-total0').textContent = euroValue(total0);
+    byId('p-total25').textContent = euroValue(total25);
     byId('p-piece0').textContent = euroValue(piece0);
+    byId('p-piece25').textContent = euroValue(piece25);
     byId('p-area').textContent = num3(area) + ' m²';
     byId('p-totalarea').textContent = num3(totalArea) + ' m²';
     byId('p-sqm').textContent = num2(sqm) + ' €/m²';
