@@ -266,7 +266,9 @@
     var setup = 13;
     var baseSqm = 57;
 
-    if (totalArea >= 0.5) {
+    if (totalArea >= 1) {
+      baseSqm = 52;
+    } else if (totalArea >= 0.5) {
       if (qty <= 4) baseSqm = 57;
       else if (qty <= 9) baseSqm = 54;
       else baseSqm = 52;
