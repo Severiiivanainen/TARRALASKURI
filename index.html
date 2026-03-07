@@ -1,365 +1,315 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tarralaskuri</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tarralaskuri Offline</title>
   <style>
-    :root {
-      --bg: #f3f6fb;
-      --card: #ffffff;
-      --text: #16324f;
-      --muted: #61758a;
-      --accent: #1f4e78;
-      --accent-2: #d9eaf7;
-      --input: #fff8db;
-      --result: #e7f5e6;
-      --border: #d8e1ea;
+    :root{
+      --bg:#f3f6fb; --card:#fff; --text:#16324f; --muted:#61758a;
+      --accent:#1f4e78; --border:#d8e1ea; --input:#fff8db; --result:#e7f5e6;
     }
-    * { box-sizing: border-box; }
-    body {
-      <script>
-var password = prompt("HEIT SALASANA:");
-
-if (password !== "2021") {
-  alert("Ei pääsyä");
-  window.location.href = "https://google.com";
-}
-</script>
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:760px;margin:0 auto;padding:18px 14px 34px}
+    .title{font-size:28px;font-weight:800;margin:2px 0 10px}
+    .sub{color:var(--muted);margin:0 0 16px;line-height:1.35}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .tab{border:1px solid var(--border);background:#fff;color:var(--text);border-radius:14px;padding:14px 12px;font-size:16px;font-weight:700;cursor:pointer}
+    .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .card{background:var(--card);border-radius:18px;border:1px solid var(--border);box-shadow:0 6px 18px rgba(19,44,73,.06);overflow:hidden}
+    .section-head{background:var(--accent);color:#fff;padding:16px 18px;font-size:18px;font-weight:800}
+    .section{padding:16px}
+    .grid{display:grid;gap:12px}
+    .field label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
+    .field input,.field select{
+      width:100%;border:1px solid var(--border);background:var(--input);border-radius:14px;
+      padding:16px 14px;font-size:18px;outline:none;color:var(--text);appearance:none;
     }
-    .wrap {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 20px 14px 40px;
-    }
-    .title {
-      font-size: 28px;
-      font-weight: 800;
-      margin: 4px 0 14px;
-      letter-spacing: -0.02em;
-    }
-    .sub {
-      color: var(--muted);
-      margin-bottom: 18px;
-      line-height: 1.35;
-    }
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .tab {
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--text);
-      border-radius: 14px;
-      padding: 14px 12px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-    .tab.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 18px rgba(19, 44, 73, 0.06);
-      overflow: hidden;
-    }
-    .section-head {
-      background: var(--accent);
-      color: white;
-      padding: 16px 18px;
-      font-size: 18px;
-      font-weight: 800;
-    }
-    .section {
-      padding: 16px;
-    }
-    .grid {
-      display: grid;
-      gap: 12px;
-    }
-    .field label {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 7px;
-      color: var(--text);
-    }
-    .field input,
-    .field select {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: var(--input);
-      border-radius: 14px;
-      padding: 16px 14px;
-      font-size: 18px;
-      outline: none;
-      color: var(--text);
-    }
-    .field input:focus,
-    .field select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(31,78,120,0.12);
-    }
-    .results {
-      display: grid;
-      gap: 10px;
-      margin-top: 4px;
-    }
-    .result-box {
-      background: var(--result);
-      border: 1px solid #cfe7cd;
-      border-radius: 16px;
-      padding: 14px;
-    }
-    .result-label {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 4px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .03em;
-    }
-    .result-value {
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1.1;
-    }
-    .mini-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .mini {
-      background: #f8fbff;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px;
-    }
-    .mini .k {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 4px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .mini .v {
-      font-size: 20px;
-      font-weight: 800;
-    }
-    .note {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-    .hidden { display: none; }
-    @media (max-width: 520px) {
-      .title { font-size: 24px; }
-      .result-value { font-size: 24px; }
-      .mini .v { font-size: 18px; }
-      .section { padding: 14px; }
+    .results{display:grid;gap:10px;margin-top:16px}
+    .result-box{background:var(--result);border:1px solid #cfe7cd;border-radius:16px;padding:14px}
+    .result-label{font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+    .result-value{font-size:28px;font-weight:800;line-height:1.1}
+    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .mini{background:#f8fbff;border:1px solid var(--border);border-radius:14px;padding:12px}
+    .mini .k{font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase}
+    .mini .v{font-size:20px;font-weight:800}
+    .note{margin-top:14px;color:var(--muted);font-size:13px;line-height:1.4}
+    .hidden{display:none}
+    @media (max-width:520px){
+      .title{font-size:24px}.result-value{font-size:24px}.mini .v{font-size:18px}.section{padding:14px}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="title">Tarralaskuri</div>
-    <div class="sub">Toimii offline puhelimessa. Syötä vain mitat, määrä ja tarvittaessa lisävalinnat.</div>
+<div id="loginScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);">
+  <div style="width:100%;max-width:420px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 6px 18px rgba(19,44,73,.06);padding:24px;">
+    <div style="font-size:28px;font-weight:800;margin:0 0 10px;">Tarralaskuri</div>
+    <div style="color:var(--muted);margin:0 0 16px;line-height:1.35;">Syötä salasana avataksesi laskurin.</div>
+    <input id="passwordInput" type="password" inputmode="numeric" placeholder="Salasana" style="width:100%;border:1px solid var(--border);background:var(--input);border-radius:14px;padding:16px 14px;font-size:18px;outline:none;color:var(--text);appearance:none;">
+    <button id="loginButton" type="button" style="width:100%;margin-top:12px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:14px;padding:14px 12px;font-size:16px;font-weight:700;cursor:pointer;">Avaa</button>
+    <p id="loginError" style="color:#b00020;display:none;margin:10px 0 0;">Väärä salasana</p>
+  </div>
+</div>
 
-    <div class="tabs">
-      <button class="tab active" data-target="siirto">Siirtokalvotarrat</button>
-      <button class="tab" data-target="printti">Printtitarrat</button>
-    </div>
+<div id="appContent" style="display:none;">
 
-    <section id="siirto" class="card panel">
-      <div class="section-head">Siirtokalvotarrat</div>
-      <div class="section">
-        <div class="grid">
-          <div class="field">
-            <label for="s-width">Leveys (mm)</label>
-            <input id="s-width" type="number" min="1" value="1000" inputmode="decimal" />
-          </div>
-          <div class="field">
-            <label for="s-height">Korkeus (mm)</label>
-            <input id="s-height" type="number" min="1" value="1000" inputmode="decimal" />
-          </div>
-          <div class="field">
-            <label for="s-qty">Kappalemäärä</label>
-            <input id="s-qty" type="number" min="1" value="5" inputmode="numeric" />
-          </div>
-        </div>
+<div class="wrap">
+  <div class="title">Tarralaskuri</div>
+  <div class="sub">Offline-versio puhelimelle. Syötä vain mitat, määrä ja lisävalinnat.</div>
 
-        <div class="results" style="margin-top:16px;">
-          <div class="result-box">
-            <div class="result-label">Kokonaishinta alv 0 %</div>
-            <div class="result-value" id="s-total0">0,00 €</div>
-          </div>
-          <div class="result-box">
-            <div class="result-label">Kokonaishinta alv 25,5 %</div>
-            <div class="result-value" id="s-total25">0,00 €</div>
-          </div>
-        </div>
-
-        <div class="mini-grid">
-          <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="s-piece0">0,00 €</div></div>
-          <div class="mini"><div class="k">Kappalehinta alv 25,5 %</div><div class="v" id="s-piece25">0,00 €</div></div>
-          <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="s-area">0,000 m²</div></div>
-          <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="s-sqm">0,00 €/m²</div></div>
-        </div>
-
-        <div class="note">Hintalogiikka Excel-tiedoston mukaan: aloituskulu 23 €, alle 0,8 m² kokonaispinta-alalla käytetään 79 €/m². Muuten määrä ohjaa neliöhintaa: 1–4 kpl 79 €, 5–9 kpl 75 €, 10+ kpl 72 €.</div>
-      </div>
-    </section>
-
-    <section id="printti" class="card panel hidden">
-      <div class="section-head">Printtitarrat</div>
-      <div class="section">
-        <div class="grid">
-          <div class="field">
-            <label for="p-width">Leveys (mm)</label>
-            <input id="p-width" type="number" min="1" value="1300" inputmode="decimal" />
-          </div>
-          <div class="field">
-            <label for="p-height">Korkeus (mm)</label>
-            <input id="p-height" type="number" min="1" value="300" inputmode="decimal" />
-          </div>
-          <div class="field">
-            <label for="p-qty">Kappalemäärä</label>
-            <input id="p-qty" type="number" min="1" value="1" inputmode="numeric" />
-          </div>
-          <div class="field">
-            <label for="p-lam">Laminointi</label>
-            <select id="p-lam">
-              <option value="ei">Ei</option>
-              <option value="normaali" selected>Normaali</option>
-              <option value="mx">MX</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="p-transfer">Siirtokalvo</label>
-            <select id="p-transfer">
-              <option value="ei" selected>Ei</option>
-              <option value="kylla">Kyllä</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="results" style="margin-top:16px;">
-          <div class="result-box">
-            <div class="result-label">Kokonaishinta alv 0 %</div>
-            <div class="result-value" id="p-total0">0,00 €</div>
-          </div>
-        </div>
-
-        <div class="mini-grid">
-          <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="p-piece0">0,00 €</div></div>
-          <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="p-area">0,000 m²</div></div>
-          <div class="mini"><div class="k">Kokonaispinta-ala</div><div class="v" id="p-totalarea">0,000 m²</div></div>
-          <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="p-sqm">0,00 €/m²</div></div>
-        </div>
-
-        <div class="note">Hintalogiikka Excel-tiedoston mukaan: aloituskulu 13 €. Jos kokonaispinta-ala on vähintään 1 m², perusneliöhinta on aina 52 €/m². Muuten määrä ohjaa perushintaa: 1–4 kpl 57 €, 5–9 kpl 54 €, 10+ kpl 52 €. Laminointi lisää 0 / 7 / 40 €/m² ja siirtokalvo 5 €/m².</div>
-      </div>
-    </section>
+  <div class="tabs">
+    <button class="tab active" data-target="siirto" type="button">Siirtokalvotarrat</button>
+    <button class="tab" data-target="printti" type="button">Printtitarrat</button>
   </div>
 
-  <script>
-    const euro = new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' });
-    const num = new Intl.NumberFormat('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const num3 = new Intl.NumberFormat('fi-FI', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+  <section id="siirto" class="card panel">
+    <div class="section-head">Siirtokalvotarrat</div>
+    <div class="section">
+      <div class="grid">
+        <div class="field">
+          <label for="s-width">Leveys (mm)</label>
+          <input id="s-width" type="text" inputmode="decimal" value="1000">
+        </div>
+        <div class="field">
+          <label for="s-height">Korkeus (mm)</label>
+          <input id="s-height" type="text" inputmode="decimal" value="1000">
+        </div>
+        <div class="field">
+          <label for="s-qty">Kappalemäärä</label>
+          <input id="s-qty" type="text" inputmode="numeric" value="5">
+        </div>
+      </div>
 
-    function safe(v, fallback = 0) {
-      const n = parseFloat(String(v).replace(',', '.'));
-      return Number.isFinite(n) ? n : fallback;
+      <div class="results">
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 0 %</div>
+          <div class="result-value" id="s-total0">0,00 €</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 25,5 %</div>
+          <div class="result-value" id="s-total25">0,00 €</div>
+        </div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="s-piece0">0,00 €</div></div>
+        <div class="mini"><div class="k">Kappalehinta alv 25,5 %</div><div class="v" id="s-piece25">0,00 €</div></div>
+        <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="s-area">0,000 m²</div></div>
+        <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="s-sqm">0,00 €/m²</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="printti" class="card panel hidden">
+    <div class="section-head">Printtitarrat</div>
+    <div class="section">
+      <div class="grid">
+        <div class="field">
+          <label for="p-width">Leveys (mm)</label>
+          <input id="p-width" type="text" inputmode="decimal" value="1300">
+        </div>
+        <div class="field">
+          <label for="p-height">Korkeus (mm)</label>
+          <input id="p-height" type="text" inputmode="decimal" value="300">
+        </div>
+        <div class="field">
+          <label for="p-qty">Kappalemäärä</label>
+          <input id="p-qty" type="text" inputmode="numeric" value="1">
+        </div>
+        <div class="field">
+          <label for="p-lam">Laminointi</label>
+          <select id="p-lam">
+            <option value="ei">Ei</option>
+            <option value="normaali" selected>Normaali</option>
+            <option value="mx">MX</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="p-transfer">Siirtokalvo</label>
+          <select id="p-transfer">
+            <option value="ei" selected>Ei</option>
+            <option value="kylla">Kyllä</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 0 %</div>
+          <div class="result-value" id="p-total0">0,00 €</div>
+        </div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="p-piece0">0,00 €</div></div>
+        <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="p-area">0,000 m²</div></div>
+        <div class="mini"><div class="k">Kokonaispinta-ala</div><div class="v" id="p-totalarea">0,000 m²</div></div>
+        <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="p-sqm">0,00 €/m²</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  function euroValue(n) {
+    n = Number(n) || 0;
+    return n.toFixed(2).replace('.', ',') + ' €';
+  }
+  function num2(n) {
+    n = Number(n) || 0;
+    return n.toFixed(2).replace('.', ',');
+  }
+  function num3(n) {
+    n = Number(n) || 0;
+    return n.toFixed(3).replace('.', ',');
+  }
+  function safe(v, fallback) {
+    var s = String(v == null ? '' : v).trim();
+    s = s.replace(/\s+/g, '').replace(',', '.');
+    var n = parseFloat(s);
+    return isFinite(n) ? n : (fallback || 0);
+  }
+  function byId(id) { return document.getElementById(id); }
+
+  function calcSiirto() {
+    var width = safe(byId('s-width').value, 0);
+    var height = safe(byId('s-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('s-qty').value, 1)));
+    var area = (width / 1000) * (height / 1000);
+    var totalArea = area * qty;
+    var setup = 23;
+    var sqm = 72;
+
+    if (totalArea < 0.8) sqm = 79;
+    else if (qty <= 4) sqm = 79;
+    else if (qty <= 9) sqm = 75;
+    else sqm = 72;
+
+    var total0 = setup + area * qty * sqm;
+    var piece0 = total0 / qty;
+    var total25 = total0 * 1.255;
+    var piece25 = piece0 * 1.255;
+
+    byId('s-total0').textContent = euroValue(total0);
+    byId('s-total25').textContent = euroValue(total25);
+    byId('s-piece0').textContent = euroValue(piece0);
+    byId('s-piece25').textContent = euroValue(piece25);
+    byId('s-area').textContent = num3(area) + ' m²';
+    byId('s-sqm').textContent = num2(sqm) + ' €/m²';
+  }
+
+  function calcPrintti() {
+    var width = safe(byId('p-width').value, 0);
+    var height = safe(byId('p-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('p-qty').value, 1)));
+    var lam = byId('p-lam').value;
+    var transfer = byId('p-transfer').value;
+    var area = (width / 1000) * (height / 1000);
+    var totalArea = area * qty;
+    var setup = 13;
+    var baseSqm = 52;
+
+    if (totalArea >= 1) baseSqm = 52;
+    else if (qty <= 4) baseSqm = 57;
+    else if (qty <= 9) baseSqm = 54;
+    else baseSqm = 52;
+
+    var lamAdd = 0;
+    if (lam === 'normaali') lamAdd = 7;
+    else if (lam === 'mx') lamAdd = 40;
+
+    var transferAdd = transfer === 'kylla' ? 5 : 0;
+    var sqm = baseSqm + lamAdd + transferAdd;
+    var total0 = setup + area * qty * sqm;
+    var piece0 = total0 / qty;
+
+    byId('p-total0').textContent = euroValue(total0);
+    byId('p-piece0').textContent = euroValue(piece0);
+    byId('p-area').textContent = num3(area) + ' m²';
+    byId('p-totalarea').textContent = num3(totalArea) + ' m²';
+    byId('p-sqm').textContent = num2(sqm) + ' €/m²';
+  }
+
+  function bindCalc(selector, fn) {
+    var els = document.querySelectorAll(selector);
+    for (var i = 0; i < els.length; i++) {
+      els[i].addEventListener('input', fn, false);
+      els[i].addEventListener('change', fn, false);
+      els[i].addEventListener('keyup', fn, false);
     }
+  }
 
-    function calcSiirto() {
-      const width = safe(document.getElementById('s-width').value);
-      const height = safe(document.getElementById('s-height').value);
-      const qty = Math.max(1, Math.round(safe(document.getElementById('s-qty').value, 1)));
-      const area = (width / 1000) * (height / 1000);
-      const totalArea = area * qty;
-      const setup = 23;
-      let sqm;
-      if (totalArea < 0.8) sqm = 79;
-      else if (qty <= 4) sqm = 79;
-      else if (qty <= 9) sqm = 75;
-      else sqm = 72;
-
-      const variable = area * qty * sqm;
-      const total0 = setup + variable;
-      const piece0 = total0 / qty;
-      const total25 = total0 * 1.255;
-      const piece25 = piece0 * 1.255;
-
-      document.getElementById('s-total0').textContent = euro.format(total0);
-      document.getElementById('s-total25').textContent = euro.format(total25);
-      document.getElementById('s-piece0').textContent = euro.format(piece0);
-      document.getElementById('s-piece25').textContent = euro.format(piece25);
-      document.getElementById('s-area').textContent = num3.format(area) + ' m²';
-      document.getElementById('s-sqm').textContent = num.format(sqm) + ' €/m²';
+  function bindTabs() {
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener('click', function () {
+        var target = this.getAttribute('data-target');
+        var allTabs = document.querySelectorAll('.tab');
+        var panels = document.querySelectorAll('.panel');
+        for (var j = 0; j < allTabs.length; j++) allTabs[j].classList.remove('active');
+        for (var k = 0; k < panels.length; k++) panels[k].classList.add('hidden');
+        this.classList.add('active');
+        byId(target).classList.remove('hidden');
+      }, false);
     }
+  }
 
-    function calcPrintti() {
-      const width = safe(document.getElementById('p-width').value);
-      const height = safe(document.getElementById('p-height').value);
-      const qty = Math.max(1, Math.round(safe(document.getElementById('p-qty').value, 1)));
-      const lam = document.getElementById('p-lam').value;
-      const transfer = document.getElementById('p-transfer').value;
-      const area = (width / 1000) * (height / 1000);
-      const totalArea = area * qty;
-      const setup = 13;
-
-      let baseSqm;
-      if (totalArea >= 1) baseSqm = 52;
-      else if (qty <= 4) baseSqm = 57;
-      else if (qty <= 9) baseSqm = 54;
-      else baseSqm = 52;
-
-      let lamAdd = 0;
-      if (lam === 'normaali') lamAdd = 7;
-      else if (lam === 'mx') lamAdd = 40;
-
-      const transferAdd = transfer === 'kylla' ? 5 : 0;
-      const sqm = baseSqm + lamAdd + transferAdd;
-      const variable = area * qty * sqm;
-      const total0 = setup + variable;
-      const piece0 = total0 / qty;
-
-      document.getElementById('p-total0').textContent = euro.format(total0);
-      document.getElementById('p-piece0').textContent = euro.format(piece0);
-      document.getElementById('p-area').textContent = num3.format(area) + ' m²';
-      document.getElementById('p-totalarea').textContent = num3.format(totalArea) + ' m²';
-      document.getElementById('p-sqm').textContent = num.format(sqm) + ' €/m²';
-    }
-
-    document.querySelectorAll('#siirto input').forEach(el => el.addEventListener('input', calcSiirto));
-    document.querySelectorAll('#printti input, #printti select').forEach(el => el.addEventListener('input', calcPrintti));
-    document.querySelectorAll('.tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.target).classList.remove('hidden');
-      });
-    });
-
+  function init() {
+    bindCalc('#siirto input', calcSiirto);
+    bindCalc('#printti input, #printti select', calcPrintti);
+    bindTabs();
     calcSiirto();
     calcPrintti();
-  </script>
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, false);
+  } else {
+    init();
+  }
+})();
+</script>
+</div>
+
+<script>
+(function () {
+  function checkPassword() {
+    var password = document.getElementById('passwordInput').value;
+    var error = document.getElementById('loginError');
+    if (password === '2021') {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      sessionStorage.setItem('tarralaskuri_ok', '1');
+      error.style.display = 'none';
+      return true;
+    }
+    error.style.display = 'block';
+    return false;
+  }
+
+  function initLogin() {
+    var button = document.getElementById('loginButton');
+    var input = document.getElementById('passwordInput');
+    if (sessionStorage.getItem('tarralaskuri_ok') === '1') {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      return;
+    }
+    button.addEventListener('click', checkPassword, false);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') checkPassword();
+    }, false);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLogin, false);
+  } else {
+    initLogin();
+  }
+})();
+</script>
+
 </body>
 </html>
