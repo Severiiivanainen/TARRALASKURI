@@ -296,6 +296,12 @@
 
     var total0 = setup + area * qty * sqm;
     var piece0 = total0 / qty;
+
+    if (piece0 < 0.6) {
+      piece0 = 0.6;
+      total0 = piece0 * qty;
+    }
+
     var total25 = total0 * 1.255;
     var piece25 = piece0 * 1.255;
 
@@ -317,7 +323,7 @@
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
     var setup = 16;
-    var baseSqm = 110;
+    var baseSqm = 105;
 
     if (totalArea >= 15) baseSqm = 43;
     else if (totalArea >= 10) baseSqm = 48;
@@ -329,7 +335,7 @@
     else if (totalArea >= 0.3) baseSqm = 80;
     else if (totalArea >= 0.2) baseSqm = 90;
     else if (totalArea >= 0.1) baseSqm = 100;
-    else baseSqm = 110;
+    else baseSqm = 105;
 
     var lamAdd = 0;
     if (lam === 'normaali') lamAdd = 7;
@@ -339,6 +345,12 @@
     var sqm = baseSqm + lamAdd + transferAdd;
     var total0 = setup + area * qty * sqm;
     var piece0 = total0 / qty;
+
+    if (piece0 < 0.6) {
+      piece0 = 0.6;
+      total0 = piece0 * qty;
+    }
+
     var total25 = total0 * 1.255;
     var piece25 = piece0 * 1.255;
 
