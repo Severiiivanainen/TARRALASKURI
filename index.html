@@ -62,6 +62,7 @@
     <button class="tab active" data-target="siirto" type="button">Siirtokalvotarrat</button>
     <button class="tab" data-target="printti" type="button">Printtitarrat</button>
     <button class="tab" data-target="kate" type="button">Katelaskuri</button>
+    <button class="tab" data-target="ale" type="button">Alelaskuri</button>
   </div>
 
   <section id="siirto" class="card panel">
@@ -203,6 +204,58 @@
       <div class="note">Myyntihinta lasketaan kaavalla: ostohinta / (1 - kateprosentti / 100).</div>
     </div>
   </section>
+
+  <section id="ale" class="card panel hidden">
+    <div class="section-head">ALELASKURI</div>
+    <div class="section">
+      <div class="sub" style="margin-bottom:16px;">Syötä tuotteen hinta joko alv 0 % tai alv 25,5 % hintana, sekä kappalemäärä.</div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="a-price-mode">Syötetty hinta on</label>
+          <select id="a-price-mode">
+            <option value="alv0" selected>ALV 0 %</option>
+            <option value="alv255">ALV 25,5 %</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="a-price">Tuotteen hinta (€)</label>
+          <input id="a-price" type="text" inputmode="decimal" value="0">
+        </div>
+        <div class="field">
+          <label for="a-qty">Kappalemäärä</label>
+          <input id="a-qty" type="text" inputmode="numeric" value="1">
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="result-box">
+          <div class="result-label">Kappalehinta alv 0 %</div>
+          <div class="result-value" id="a-piece0">0,00 €</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Kappalehinta alv 25,5 %</div>
+          <div class="result-value" id="a-piece25">0,00 €</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 0 %</div>
+          <div class="result-value" id="a-total0">0,00 €</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 25,5 %</div>
+          <div class="result-value" id="a-total25">0,00 €</div>
+        </div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini"><div class="k">Alennus</div><div class="v" id="a-discount">-0 %</div></div>
+        <div class="mini"><div class="k">Kappalemäärä</div><div class="v" id="a-qty-label">1</div></div>
+      </div>
+
+      <div class="note">Alennuslogiikka: 0–4 kpl = ei alennusta, 5–14 kpl = -10 %, 15+ kpl = -15 %.</div>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -233,7 +286,7 @@
     var qty = Math.max(1, Math.round(safe(byId('s-qty').value, 1)));
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
-    var setup = 23;
+    var setup = 24;
     var sqm = 72;
 
     if (totalArea < 0.5) sqm = 79;
@@ -263,18 +316,20 @@
     var transfer = byId('p-transfer').value;
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
-    var setup = 15;
-    var baseSqm = 100;
+    var setup = 16;
+    var baseSqm = 110;
 
     if (totalArea >= 15) baseSqm = 43;
     else if (totalArea >= 10) baseSqm = 48;
     else if (totalArea >= 5) baseSqm = 52;
     else if (totalArea >= 2) baseSqm = 55;
-    else if (totalArea >= 1) baseSqm = 58;
-    else if (totalArea >= 0.6) baseSqm = 65;
-    else if (totalArea >= 0.4) baseSqm = 70;
-    else if (totalArea >= 0.2) baseSqm = 80;
-    else if (totalArea >= 0.1) baseSqm = 90;
+    else if (totalArea >= 1) baseSqm = 60;
+    else if (totalArea >= 0.6) baseSqm = 70;
+    else if (totalArea >= 0.4) baseSqm = 75;
+    else if (totalArea >= 0.3) baseSqm = 80;
+    else if (totalArea >= 0.2) baseSqm = 90;
+    else if (totalArea >= 0.1) baseSqm = 100;
+    else baseSqm = 110;
 
     var lamAdd = 0;
     if (lam === 'normaali') lamAdd = 7;
@@ -314,6 +369,30 @@
     byId('k-vatLabel').textContent = num2(vat).replace(',00', '') + ' %';
   }
 
+
+  function calcAle() {
+    var mode = byId('a-price-mode').value;
+    var inputPrice = safe(byId('a-price').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('a-qty').value, 1)));
+    var base0 = mode === 'alv255' ? inputPrice / 1.255 : inputPrice;
+    var discount = 0;
+
+    if (qty >= 15) discount = 15;
+    else if (qty >= 5) discount = 10;
+
+    var piece0 = base0 * (1 - discount / 100);
+    var piece25 = piece0 * 1.255;
+    var total0 = piece0 * qty;
+    var total25 = piece25 * qty;
+
+    byId('a-piece0').textContent = euroValue(piece0);
+    byId('a-piece25').textContent = euroValue(piece25);
+    byId('a-total0').textContent = euroValue(total0);
+    byId('a-total25').textContent = euroValue(total25);
+    byId('a-discount').textContent = '-' + discount + ' %';
+    byId('a-qty-label').textContent = String(qty);
+  }
+
   function bindCalc(selector, fn) {
     var els = document.querySelectorAll(selector);
     for (var i = 0; i < els.length; i++) {
@@ -342,10 +421,12 @@
     bindCalc('#siirto input', calcSiirto);
     bindCalc('#printti input, #printti select', calcPrintti);
     bindCalc('#kate input, #kate select', calcKate);
+    bindCalc('#ale input, #ale select', calcAle);
     bindTabs();
     calcSiirto();
     calcPrintti();
     calcKate();
+    calcAle();
   }
 
   if (document.readyState === 'loading') {
