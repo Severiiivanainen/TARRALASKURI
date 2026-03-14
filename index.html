@@ -345,12 +345,6 @@
     var sqm = baseSqm + lamAdd + transferAdd;
     var total0 = setup + area * qty * sqm;
     var piece0 = total0 / qty;
-
-    if (piece0 < 0.6) {
-      piece0 = 0.6;
-      total0 = piece0 * qty;
-    }
-
     var total25 = total0 * 1.255;
     var piece25 = piece0 * 1.255;
 
@@ -362,7 +356,6 @@
     byId('p-totalarea').textContent = num3(totalArea) + ' m²';
     byId('p-sqm').textContent = num2(sqm) + ' €/m²';
   }
-
   function calcKate() {
     var cost = safe(byId('k-cost').value, 0);
     var margin = safe(byId('k-margin').value, 0);
