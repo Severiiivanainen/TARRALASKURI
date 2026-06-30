@@ -285,6 +285,7 @@
           <select id="b-type">
             <option value="printti" selected>Printtitarrat</option>
             <option value="siirto">Siirtokalvotarrat</option>
+            <option value="paperi">Paperi</option>
           </select>
         </div>
         <div class="field">
@@ -298,6 +299,13 @@
         <div class="field">
           <label for="b-qty">Kappalemäärä</label>
           <input id="b-qty" type="text" inputmode="numeric" value="1">
+        </div>
+        <div class="field" id="b-paper-hand-field">
+          <label for="b-paper-hand">Käsinleikkuu</label>
+          <select id="b-paper-hand">
+            <option value="ei" selected>Ei</option>
+            <option value="kylla">Kyllä</option>
+          </select>
         </div>
         <div class="field" id="b-material-field">
           <label for="b-material">Kalvotyyppi</label>
@@ -352,7 +360,7 @@
         <div class="mini"><div class="k">Tyyppi</div><div class="v" id="b-type-label">Printtitarrat</div></div>
       </div>
 
-      <div class="note">Korissa käytetään nykyistä valitun tarratyypin hinnoittelua. Setup lisätään vain kerran koko korille. Printtikorissa laminointi ja siirtokalvo koskevat koko koria.</div>
+      <div class="note">Korissa käytetään nykyistä valitun tuotetyypin hinnoittelua. Setup lisätään vain kerran koko korille. Printtikorissa laminointi ja siirtokalvo koskevat koko koria. Paperikorissa käsinleikkuu lisää 0,40 €/kpl.</div>
     </div>
   </section>
 
@@ -374,6 +382,13 @@
         <div class="field">
           <label for="pa-qty">Kappalemäärä</label>
           <input id="pa-qty" type="text" inputmode="numeric" value="1">
+        </div>
+        <div class="field">
+          <label for="pa-hand">Käsinleikkuu</label>
+          <select id="pa-hand">
+            <option value="ei" selected>Ei</option>
+            <option value="kylla">Kyllä</option>
+          </select>
         </div>
       </div>
 
@@ -571,6 +586,8 @@
   function updateProjectFields() {
     var type = byId('b-type').value;
     var showPrintOptions = type === 'printti';
+    var showPaperOptions = type === 'paperi';
+    byId('b-paper-hand-field').style.display = showPaperOptions ? 'block' : 'none';
     byId('b-material-field').style.display = showPrintOptions ? 'block' : 'none';
     byId('b-lam-field').style.display = showPrintOptions ? 'block' : 'none';
     byId('b-transfer-field').style.display = showPrintOptions ? 'block' : 'none';
@@ -634,13 +651,19 @@
     }
 
     var type = projectBasket.length > 0 ? projectType : byId('b-type').value;
-    var setup = type === 'siirto' ? 24 : 16;
+    var setup = type === 'siirto' ? 24 : (type === 'paperi' ? 0 : 16);
     var baseSqm = 0;
     var sqm = 0;
 
     if (totalArea > 0) {
       if (type === 'siirto') {
         baseSqm = siirtoSqmByAreaAndQty(totalArea, totalQty);
+        sqm = baseSqm;
+      } else if (type === 'paperi') {
+        if (totalArea >= 1.5) baseSqm = 22;
+        else if (totalArea >= 1.0) baseSqm = 25;
+        else if (totalArea >= 0.5) baseSqm = 30;
+        else baseSqm = 35;
         sqm = baseSqm;
       } else {
         baseSqm = printBaseSqmByArea(totalArea);
@@ -658,6 +681,10 @@
 
     var total0 = totalArea > 0 ? setup + totalArea * sqm : 0;
 
+    if (type === 'paperi' && totalQty > 0 && byId('b-paper-hand').value === 'kylla') {
+      total0 += 0.4 * totalQty;
+    }
+
     if (type === 'siirto' && totalQty > 0) {
       var piece0 = total0 / totalQty;
       if (piece0 < 0.6) total0 = 0.6 * totalQty;
@@ -672,7 +699,7 @@
     byId('b-basesqm').textContent = num2(baseSqm) + ' €/m²';
     byId('b-sqm').textContent = num2(sqm) + ' €/m²';
     byId('b-setup').textContent = euroValue(totalArea > 0 ? setup : 0);
-    byId('b-type-label').textContent = type === 'siirto' ? 'Siirtokalvotarrat' : 'Printtitarrat';
+    byId('b-type-label').textContent = type === 'siirto' ? 'Siirtokalvotarrat' : (type === 'paperi' ? 'Paperi' : 'Printtitarrat');
 
     if (projectBasket.length === 0) {
       list.innerHTML = '<div class="note">Kori on tyhjä.</div>';
@@ -701,6 +728,7 @@
     var width = safe(byId('pa-width').value, 0);
     var height = safe(byId('pa-height').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('pa-qty').value, 1)));
+    var hand = byId('pa-hand').value;
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
     var sqm = 35;
@@ -711,6 +739,12 @@
 
     var total0 = totalArea * sqm;
     var piece0 = total0 / qty;
+
+    if (hand === 'kylla') {
+      piece0 += 0.4;
+      total0 = piece0 * qty;
+    }
+
     var total25 = total0 * 1.255;
     var piece25 = piece0 * 1.255;
 
