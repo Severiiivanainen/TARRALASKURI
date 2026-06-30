@@ -14,9 +14,9 @@
     .wrap{max-width:760px;margin:0 auto;padding:18px 14px 34px}
     .title{font-size:28px;font-weight:800;margin:2px 0 10px}
     .sub{color:var(--muted);margin:0 0 16px;line-height:1.35}
-    .tabs{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:10px;margin-bottom:14px}
-    .tab{border:1px solid var(--border);background:#fff;color:var(--text);border-radius:14px;padding:14px 12px;font-size:16px;font-weight:700;cursor:pointer}
-    .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .tabs{display:grid;grid-template-columns:repeat(6, minmax(0, 1fr));gap:10px;margin-bottom:14px}
+    .tab{border:1px solid var(--border);background:#fff;color:#000;border-radius:14px;padding:14px 12px;font-size:16px;font-weight:700;cursor:pointer}
+    .tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
     .card{background:var(--card);border-radius:18px;border:1px solid var(--border);box-shadow:0 10px 24px rgba(0,0,0,.35);overflow:hidden}
     .section-head{background:var(--accent);color:#fff;padding:16px 18px;font-size:18px;font-weight:800}
     .section{padding:16px}
@@ -36,7 +36,16 @@
     .mini .v{font-size:20px;font-weight:800}
     .note{margin-top:14px;color:var(--muted);font-size:13px;line-height:1.4}
     .hidden{display:none}
+    .basket-list{display:grid;gap:10px;margin-top:14px}
+    .basket-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#1c1c1f;border:1px solid var(--border);border-radius:14px;padding:12px}
+    .basket-main{font-weight:800;line-height:1.35}
+    .basket-sub{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.35}
+    .small-btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:800;cursor:pointer}
+    .small-btn.secondary{background:#232326;color:var(--text);border-color:var(--border)}
     @media (max-width:520px){
+      .tabs{grid-template-columns:1fr 1fr}
+      .tab{font-size:12px;padding:10px 4px}
+      .basket-row{grid-template-columns:1fr}
       .title{font-size:24px}.result-value{font-size:24px}.mini .v{font-size:18px}.section{padding:14px}
     }
   </style>
@@ -59,13 +68,15 @@
   <div class="sub">VIBEMAFIA.</div>
 
   <div class="tabs">
-    <button class="tab active" data-target="siirto" type="button">Siirtokalvotarrat</button>
-    <button class="tab" data-target="printti" type="button">Printtitarrat</button>
-    <button class="tab" data-target="kate" type="button">Katelaskuri</button>
-    <button class="tab" data-target="ale" type="button">Alelaskuri</button>
+    <button class="tab active" data-target="printti" type="button">Printti</button>
+    <button class="tab" data-target="siirto" type="button">Siirtokalvo</button>
+    <button class="tab" data-target="projekti" type="button">Projektikori</button>
+    <button class="tab" data-target="paperi" type="button">Paperi</button>
+    <button class="tab" data-target="ale" type="button">Ale</button>
+    <button class="tab" data-target="kate" type="button">Kate</button>
   </div>
 
-  <section id="siirto" class="card panel">
+  <section id="siirto" class="card panel hidden">
     <div class="section-head">Siirtokalvotarrat</div>
     <div class="section">
       <div class="grid">
@@ -104,7 +115,7 @@
     </div>
   </section>
 
-  <section id="printti" class="card panel hidden">
+  <section id="printti" class="card panel">
     <div class="section-head">Printtitarrat</div>
     <div class="section">
       <div class="grid">
@@ -119,6 +130,13 @@
         <div class="field">
           <label for="p-qty">Kappalemäärä</label>
           <input id="p-qty" type="text" inputmode="numeric" value="1">
+        </div>
+        <div class="field">
+          <label for="p-material">Kalvotyyppi</label>
+          <select id="p-material">
+            <option value="polymeeri" selected>Polymeerikalvo</option>
+            <option value="valu">Valukalvo</option>
+          </select>
         </div>
         <div class="field">
           <label for="p-lam">Laminointi</label>
@@ -256,6 +274,130 @@
     </div>
   </section>
 
+  <section id="projekti" class="card panel hidden">
+    <div class="section-head">PROJEKTIKORI</div>
+    <div class="section">
+      <div class="sub" style="margin-bottom:16px;">Isoille teipeille ja projekteille. Lisää monta erikokoista tarraa samaan koriin. Neliöhinta määräytyy korin kokonaispinta-alan mukaan.</div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="b-type">Korityyppi</label>
+          <select id="b-type">
+            <option value="printti" selected>Printtitarrat</option>
+            <option value="siirto">Siirtokalvotarrat</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="b-width">Leveys (mm)</label>
+          <input id="b-width" type="text" inputmode="decimal" value="1000">
+        </div>
+        <div class="field">
+          <label for="b-height">Korkeus (mm)</label>
+          <input id="b-height" type="text" inputmode="decimal" value="500">
+        </div>
+        <div class="field">
+          <label for="b-qty">Kappalemäärä</label>
+          <input id="b-qty" type="text" inputmode="numeric" value="1">
+        </div>
+        <div class="field" id="b-material-field">
+          <label for="b-material">Kalvotyyppi</label>
+          <select id="b-material">
+            <option value="polymeeri" selected>Polymeerikalvo</option>
+            <option value="valu">Valukalvo</option>
+          </select>
+        </div>
+        <div class="field" id="b-lam-field">
+          <label for="b-lam">Laminointi</label>
+          <select id="b-lam">
+            <option value="ei">Ei</option>
+            <option value="normaali" selected>Normaali</option>
+            <option value="mx">MX</option>
+          </select>
+        </div>
+        <div class="field" id="b-transfer-field">
+          <label for="b-transfer">Siirtokalvo printtiin</label>
+          <select id="b-transfer">
+            <option value="ei" selected>Ei</option>
+            <option value="kylla">Kyllä</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+        <button class="small-btn" id="b-add" type="button">Lisää koriin</button>
+        <button class="small-btn secondary" id="b-clear" type="button">Tyhjennä kori</button>
+      </div>
+
+      <div class="basket-list" id="b-list">
+        <div class="note">Kori on tyhjä.</div>
+      </div>
+
+      <div class="results">
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 0 %</div>
+          <div class="result-value" id="b-total0">0,00 €</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 25,5 %</div>
+          <div class="result-value" id="b-total25">0,00 €</div>
+        </div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini"><div class="k">Kokonaispinta-ala</div><div class="v" id="b-totalarea">0,000 m²</div></div>
+        <div class="mini"><div class="k">Kappalemäärä yhteensä</div><div class="v" id="b-totalqty">0</div></div>
+        <div class="mini"><div class="k">Perus neliöhinta</div><div class="v" id="b-basesqm">0,00 €/m²</div></div>
+        <div class="mini"><div class="k">Lopullinen neliöhinta</div><div class="v" id="b-sqm">0,00 €/m²</div></div>
+        <div class="mini"><div class="k">Setup</div><div class="v" id="b-setup">0,00 €</div></div>
+        <div class="mini"><div class="k">Tyyppi</div><div class="v" id="b-type-label">Printtitarrat</div></div>
+      </div>
+
+      <div class="note">Korissa käytetään nykyistä valitun tarratyypin hinnoittelua. Setup lisätään vain kerran koko korille. Printtikorissa laminointi ja siirtokalvo koskevat koko koria.</div>
+    </div>
+  </section>
+
+
+  <section id="paperi" class="card panel hidden">
+    <div class="section-head">PAPERI</div>
+    <div class="section">
+      <div class="sub" style="margin-bottom:16px;">Paperituotteiden laskuri. Neliöhinta on aina 22 €/m² alv 0 %.</div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="pa-width">Leveys (mm)</label>
+          <input id="pa-width" type="text" inputmode="decimal" value="1000">
+        </div>
+        <div class="field">
+          <label for="pa-height">Korkeus (mm)</label>
+          <input id="pa-height" type="text" inputmode="decimal" value="1000">
+        </div>
+        <div class="field">
+          <label for="pa-qty">Kappalemäärä</label>
+          <input id="pa-qty" type="text" inputmode="numeric" value="1">
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 0 %</div>
+          <div class="result-value" id="pa-total0">0,00 €</div>
+        </div>
+        <div class="result-box">
+          <div class="result-label">Kokonaishinta alv 25,5 %</div>
+          <div class="result-value" id="pa-total25">0,00 €</div>
+        </div>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini"><div class="k">Kappalehinta alv 0 %</div><div class="v" id="pa-piece0">0,00 €</div></div>
+        <div class="mini"><div class="k">Kappalehinta alv 25,5 %</div><div class="v" id="pa-piece25">0,00 €</div></div>
+        <div class="mini"><div class="k">Pinta-ala / kpl</div><div class="v" id="pa-area">0,000 m²</div></div>
+        <div class="mini"><div class="k">Kokonaispinta-ala</div><div class="v" id="pa-totalarea">0,000 m²</div></div>
+        <div class="mini"><div class="k">Käytetty neliöhinta</div><div class="v" id="pa-sqm">22,00 €/m²</div></div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -318,6 +460,7 @@
     var width = safe(byId('p-width').value, 0);
     var height = safe(byId('p-height').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('p-qty').value, 1)));
+    var material = byId('p-material').value;
     var lam = byId('p-lam').value;
     var transfer = byId('p-transfer').value;
     var area = (width / 1000) * (height / 1000);
@@ -336,6 +479,8 @@
     else if (totalArea >= 0.2) baseSqm = 90;
     else if (totalArea >= 0.1) baseSqm = 100;
     else baseSqm = 105;
+
+    if (material === 'valu' && baseSqm < 80) baseSqm = 80;
 
     var lamAdd = 0;
     if (lam === 'normaali') lamAdd = 7;
@@ -398,6 +543,186 @@
     byId('a-qty-label').textContent = String(qty);
   }
 
+
+  var projectBasket = [];
+  var projectType = 'printti';
+
+  function printBaseSqmByArea(totalArea) {
+    if (totalArea >= 15) return 43;
+    if (totalArea >= 10) return 48;
+    if (totalArea >= 5) return 52;
+    if (totalArea >= 2) return 55;
+    if (totalArea >= 1) return 60;
+    if (totalArea >= 0.6) return 70;
+    if (totalArea >= 0.4) return 75;
+    if (totalArea >= 0.3) return 80;
+    if (totalArea >= 0.2) return 90;
+    if (totalArea >= 0.1) return 100;
+    return 105;
+  }
+
+  function siirtoSqmByAreaAndQty(totalArea, totalQty) {
+    if (totalArea < 0.5) return 79;
+    if (totalQty <= 4) return 79;
+    if (totalQty <= 9) return 75;
+    return 72;
+  }
+
+  function updateProjectFields() {
+    var type = byId('b-type').value;
+    var showPrintOptions = type === 'printti';
+    byId('b-material-field').style.display = showPrintOptions ? 'block' : 'none';
+    byId('b-lam-field').style.display = showPrintOptions ? 'block' : 'none';
+    byId('b-transfer-field').style.display = showPrintOptions ? 'block' : 'none';
+  }
+
+  function setProjectTypeIfEmpty() {
+    var selectedType = byId('b-type').value;
+    if (projectBasket.length === 0) {
+      projectType = selectedType;
+      updateProjectFields();
+      calcProjectBasket();
+      return true;
+    }
+    if (selectedType !== projectType) {
+      alert('Korissa on jo eri tyyppisiä tarroja. Tyhjennä kori ennen kuin vaihdat tyyppiä.');
+      byId('b-type').value = projectType;
+      updateProjectFields();
+      return false;
+    }
+    updateProjectFields();
+    return true;
+  }
+
+  function addProjectItem() {
+    if (!setProjectTypeIfEmpty()) return;
+
+    var width = safe(byId('b-width').value, 0);
+    var height = safe(byId('b-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('b-qty').value, 1)));
+
+    if (width <= 0 || height <= 0 || qty <= 0) {
+      alert('Syötä leveys, korkeus ja kappalemäärä.');
+      return;
+    }
+
+    var area = (width / 1000) * (height / 1000);
+    projectBasket.push({ width: width, height: height, qty: qty, area: area });
+    calcProjectBasket();
+  }
+
+  function removeProjectItem(index) {
+    projectBasket.splice(index, 1);
+    if (projectBasket.length === 0) projectType = byId('b-type').value;
+    calcProjectBasket();
+  }
+
+  function clearProjectBasket() {
+    projectBasket = [];
+    projectType = byId('b-type').value;
+    calcProjectBasket();
+  }
+
+  function calcProjectBasket() {
+    var list = byId('b-list');
+    var totalArea = 0;
+    var totalQty = 0;
+
+    for (var i = 0; i < projectBasket.length; i++) {
+      totalArea += projectBasket[i].area * projectBasket[i].qty;
+      totalQty += projectBasket[i].qty;
+    }
+
+    var type = projectBasket.length > 0 ? projectType : byId('b-type').value;
+    var setup = type === 'siirto' ? 24 : 16;
+    var baseSqm = 0;
+    var sqm = 0;
+
+    if (totalArea > 0) {
+      if (type === 'siirto') {
+        baseSqm = siirtoSqmByAreaAndQty(totalArea, totalQty);
+        sqm = baseSqm;
+      } else {
+        baseSqm = printBaseSqmByArea(totalArea);
+        var material = byId('b-material').value;
+        if (material === 'valu' && baseSqm < 80) baseSqm = 80;
+        var lam = byId('b-lam').value;
+        var transfer = byId('b-transfer').value;
+        var lamAdd = 0;
+        if (lam === 'normaali') lamAdd = 7;
+        else if (lam === 'mx') lamAdd = 40;
+        var transferAdd = transfer === 'kylla' ? 5 : 0;
+        sqm = baseSqm + lamAdd + transferAdd;
+      }
+    }
+
+    var total0 = totalArea > 0 ? setup + totalArea * sqm : 0;
+
+    if (type === 'siirto' && totalQty > 0) {
+      var piece0 = total0 / totalQty;
+      if (piece0 < 0.6) total0 = 0.6 * totalQty;
+    }
+
+    var total25 = total0 * 1.255;
+
+    byId('b-total0').textContent = euroValue(total0);
+    byId('b-total25').textContent = euroValue(total25);
+    byId('b-totalarea').textContent = num3(totalArea) + ' m²';
+    byId('b-totalqty').textContent = String(totalQty);
+    byId('b-basesqm').textContent = num2(baseSqm) + ' €/m²';
+    byId('b-sqm').textContent = num2(sqm) + ' €/m²';
+    byId('b-setup').textContent = euroValue(totalArea > 0 ? setup : 0);
+    byId('b-type-label').textContent = type === 'siirto' ? 'Siirtokalvotarrat' : 'Printtitarrat';
+
+    if (projectBasket.length === 0) {
+      list.innerHTML = '<div class="note">Kori on tyhjä.</div>';
+      return;
+    }
+
+    var rows = '';
+    for (var j = 0; j < projectBasket.length; j++) {
+      var item = projectBasket[j];
+      var itemTotalArea = item.area * item.qty;
+      rows += '<div class="basket-row">'
+        + '<div>'
+        + '<div class="basket-main">' + item.width + ' × ' + item.height + ' mm · ' + item.qty + ' kpl</div>'
+        + '<div class="basket-sub">Pinta-ala / kpl: ' + num3(item.area) + ' m² · yhteensä: ' + num3(itemTotalArea) + ' m²</div>'
+        + '</div>'
+        + '<button class="small-btn secondary" type="button" onclick="removeProjectItem(' + j + ')">Poista</button>'
+        + '</div>';
+    }
+    list.innerHTML = rows;
+  }
+
+  window.removeProjectItem = removeProjectItem;
+
+
+  function calcPaperi() {
+    var width = safe(byId('pa-width').value, 0);
+    var height = safe(byId('pa-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('pa-qty').value, 1)));
+    var area = (width / 1000) * (height / 1000);
+    var totalArea = area * qty;
+    var sqm = 35;
+
+    if (totalArea >= 1.5) sqm = 22;
+    else if (totalArea >= 1.0) sqm = 25;
+    else if (totalArea >= 0.5) sqm = 30;
+
+    var total0 = totalArea * sqm;
+    var piece0 = total0 / qty;
+    var total25 = total0 * 1.255;
+    var piece25 = piece0 * 1.255;
+
+    byId('pa-total0').textContent = euroValue(total0);
+    byId('pa-total25').textContent = euroValue(total25);
+    byId('pa-piece0').textContent = euroValue(piece0);
+    byId('pa-piece25').textContent = euroValue(piece25);
+    byId('pa-area').textContent = num3(area) + ' m²';
+    byId('pa-totalarea').textContent = num3(totalArea) + ' m²';
+    byId('pa-sqm').textContent = num2(sqm) + ' €/m²';
+  }
+
   function bindCalc(selector, fn) {
     var els = document.querySelectorAll(selector);
     for (var i = 0; i < els.length; i++) {
@@ -427,11 +752,19 @@
     bindCalc('#printti input, #printti select', calcPrintti);
     bindCalc('#kate input, #kate select', calcKate);
     bindCalc('#ale input, #ale select', calcAle);
+    bindCalc('#paperi input, #paperi select', calcPaperi);
+    bindCalc('#projekti input, #projekti select', calcProjectBasket);
     bindTabs();
+    byId('b-add').addEventListener('click', addProjectItem, false);
+    byId('b-clear').addEventListener('click', clearProjectBasket, false);
+    byId('b-type').addEventListener('change', setProjectTypeIfEmpty, false);
     calcSiirto();
     calcPrintti();
     calcKate();
     calcAle();
+    calcPaperi();
+    updateProjectFields();
+    calcProjectBasket();
   }
 
   if (document.readyState === 'loading') {
