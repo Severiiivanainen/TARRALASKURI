@@ -288,6 +288,17 @@
             <option value="paperi">Paperi</option>
           </select>
         </div>
+        <div class="field" id="b-paper-size-field" style="display:none">
+          <label for="b-paper-size">Pikavalinta</label>
+          <select id="b-paper-size">
+            <option value="custom" selected>Oma koko</option>
+            <option value="A5">A5 — 148 × 210 mm</option>
+            <option value="A4">A4 — 210 × 297 mm</option>
+            <option value="A3">A3 — 297 × 420 mm</option>
+            <option value="A2">A2 — 420 × 594 mm</option>
+            <option value="A1">A1 — 594 × 841 mm</option>
+          </select>
+        </div>
         <div class="field">
           <label for="b-width">Leveys (mm)</label>
           <input id="b-width" type="text" inputmode="decimal" value="1000">
@@ -594,10 +605,28 @@
     return 72;
   }
 
+
+  function applyProjectPaperQuickSize() {
+    if (byId('b-type').value !== 'paperi') return;
+    var s = byId('b-paper-size').value;
+    var map = {
+      A5:[148,210],
+      A4:[210,297],
+      A3:[297,420],
+      A2:[420,594],
+      A1:[594,841]
+    };
+    if (map[s]) {
+      byId('b-width').value = map[s][0];
+      byId('b-height').value = map[s][1];
+    }
+  }
+
   function updateProjectFields() {
     var type = byId('b-type').value;
     var showPrintOptions = type === 'printti';
     var showPaperOptions = type === 'paperi';
+    byId('b-paper-size-field').style.display = showPaperOptions ? 'block' : 'none';
     byId('b-paper-hand-field').style.display = showPaperOptions ? 'block' : 'none';
     byId('b-material-field').style.display = showPrintOptions ? 'block' : 'none';
     byId('b-lam-field').style.display = showPrintOptions ? 'block' : 'none';
@@ -624,6 +653,7 @@
 
   function addProjectItem() {
     if (!setProjectTypeIfEmpty()) return;
+    applyProjectPaperQuickSize();
 
     var width = safe(byId('b-width').value, 0);
     var height = safe(byId('b-height').value, 0);
