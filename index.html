@@ -372,6 +372,17 @@
 
       <div class="grid">
         <div class="field">
+          <label for="pa-size">Pikavalinta</label>
+          <select id="pa-size">
+            <option value="custom" selected>Oma koko</option>
+            <option value="A5">A5 — 148 × 210 mm</option>
+            <option value="A4">A4 — 210 × 297 mm</option>
+            <option value="A3">A3 — 297 × 420 mm</option>
+            <option value="A2">A2 — 420 × 594 mm</option>
+            <option value="A1">A1 — 594 × 841 mm</option>
+          </select>
+        </div>
+        <div class="field">
           <label for="pa-width">Leveys (mm)</label>
           <input id="pa-width" type="text" inputmode="decimal" value="1000">
         </div>
@@ -724,7 +735,25 @@
   window.removeProjectItem = removeProjectItem;
 
 
+
+  function applyPaperQuickSize() {
+    var size = byId('pa-size').value;
+    var sizes = {
+      A5: [148, 210],
+      A4: [210, 297],
+      A3: [297, 420],
+      A2: [420, 594],
+      A1: [594, 841]
+    };
+
+    if (sizes[size]) {
+      byId('pa-width').value = sizes[size][0];
+      byId('pa-height').value = sizes[size][1];
+    }
+  }
+
   function calcPaperi() {
+    applyPaperQuickSize();
     var width = safe(byId('pa-width').value, 0);
     var height = safe(byId('pa-height').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('pa-qty').value, 1)));
@@ -756,6 +785,20 @@
     byId('pa-area').textContent = num3(area) + ' m²';
     byId('pa-totalarea').textContent = num3(totalArea) + ' m²';
     byId('pa-sqm').textContent = num2(sqm) + ' €/m²';
+  }
+
+
+  function bindPaperManualSize() {
+    var width = byId('pa-width');
+    var height = byId('pa-height');
+    var size = byId('pa-size');
+
+    function setCustom() {
+      size.value = 'custom';
+    }
+
+    width.addEventListener('input', setCustom, false);
+    height.addEventListener('input', setCustom, false);
   }
 
   function bindCalc(selector, fn) {
@@ -790,6 +833,7 @@
     bindCalc('#paperi input, #paperi select', calcPaperi);
     bindCalc('#projekti input, #projekti select', calcProjectBasket);
     bindTabs();
+    bindPaperManualSize();
     byId('b-add').addEventListener('click', addProjectItem, false);
     byId('b-clear').addEventListener('click', clearProjectBasket, false);
     byId('b-type').addEventListener('change', setProjectTypeIfEmpty, false);
