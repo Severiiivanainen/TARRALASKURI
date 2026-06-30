@@ -651,7 +651,7 @@
     }
 
     var type = projectBasket.length > 0 ? projectType : byId('b-type').value;
-    var setup = type === 'siirto' ? 24 : (type === 'paperi' ? 0 : 16);
+    var setup = type === 'siirto' ? 24 : (type === 'paperi' ? 5 : 16);
     var baseSqm = 0;
     var sqm = 0;
 
@@ -737,7 +737,8 @@
     else if (totalArea >= 1.0) sqm = 25;
     else if (totalArea >= 0.5) sqm = 30;
 
-    var total0 = totalArea * sqm;
+    var setup = 5;
+    var total0 = (totalArea > 0 ? setup : 0) + totalArea * sqm;
     var piece0 = total0 / qty;
 
     if (hand === 'kylla') {
