@@ -17,6 +17,9 @@
     .tabs{display:grid;grid-template-columns:repeat(6, minmax(0, 1fr));gap:10px;margin-bottom:14px}
     .tab{border:1px solid var(--border);background:#fff;color:#000;border-radius:14px;padding:14px 12px;font-size:16px;font-weight:700;cursor:pointer}
     .tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+    .subtabs{display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:8px;margin-bottom:16px}
+    .subtab{border:1px solid var(--border);background:#232326;color:var(--text);border-radius:12px;padding:10px 8px;font-size:13px;font-weight:700;cursor:pointer}
+    .subtab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
     .card{background:var(--card);border-radius:18px;border:1px solid var(--border);box-shadow:0 10px 24px rgba(0,0,0,.35);overflow:hidden}
     .section-head{background:var(--accent);color:#fff;padding:16px 18px;font-size:18px;font-weight:800}
     .section{padding:16px}
@@ -44,10 +47,21 @@
     .basket-sub{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.35}
     .small-btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:800;cursor:pointer}
     .small-btn.secondary{background:#232326;color:var(--text);border-color:var(--border)}
+    .subhead{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin:22px 0 10px;padding-top:16px;border-top:1px solid var(--border)}
+    .discount-hint{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin-top:10px}
+    .discount-hint input{width:18px;height:18px}
+    .print-row{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;background:#1c1c1f;border:1px solid var(--border);border-radius:14px;padding:12px;margin-top:10px}
+    .print-row .main{font-weight:800}
+    .print-row input[type="text"]{width:100%;border:1px solid var(--border);background:var(--input);border-radius:10px;padding:10px;color:var(--text);font-weight:800;text-align:center;font-size:16px}
+    .print-special{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
+    .print-special input{width:18px;height:18px}
     @media (max-width:520px){
       .tabs{grid-template-columns:1fr 1fr}
       .tab{font-size:12px;padding:10px 4px}
+      .subtabs{grid-template-columns:1fr 1fr}
+      .subtab{font-size:11px;padding:8px 4px}
       .basket-row{grid-template-columns:1fr}
+      .print-row{grid-template-columns:1fr}
       .title{font-size:24px}.result-value{font-size:24px}.mini .v{font-size:18px}.section{padding:14px}
     }
   </style>
@@ -282,7 +296,8 @@
     <div class="section">
       <div class="sub" style="margin-bottom:16px;">Isoille teipeille ja projekteille. Lisää printtitarroja ja siirtokalvotarroja samaan koriin. Molempien neliöhinta määräytyy koko projektin kokonaispinta-alan mukaan, mutta tuotteilla on omat hintansa.</div>
 
-      <div class="grid" style="margin-bottom:16px;">
+      <div class="subhead" style="margin-top:0;padding-top:0;border-top:none;">Tarjouksen tiedot</div>
+      <div class="grid">
         <div class="field">
           <label for="offer-customer">Asiakkaan nimi</label>
           <input id="offer-customer" type="text" placeholder="Asiakas / yritys">
@@ -297,81 +312,197 @@
         </div>
       </div>
 
-      <div class="grid">
-        <div class="field">
-          <label for="b-type">Lisättävä tuote</label>
-          <select id="b-type">
-            <option value="printti" selected>Printtitarrat</option>
-            <option value="siirto">Siirtokalvotarrat</option>
-            <option value="paperi">Paperi</option>
-          </select>
+      <div class="subhead">Lisää tuote koriin</div>
+      <div class="subtabs">
+        <button class="subtab active" type="button" data-subtarget="bp-printti">Printti</button>
+        <button class="subtab" type="button" data-subtarget="bp-siirto">Siirtokalvo</button>
+        <button class="subtab" type="button" data-subtarget="bp-paperi">Paperi</button>
+        <button class="subtab" type="button" data-subtarget="bp-muu">Muut tuotteet</button>
+      </div>
+
+      <div id="bp-printti" class="subpanel">
+        <div class="grid">
+          <div class="field">
+            <label for="bpr-width">Leveys (mm)</label>
+            <input id="bpr-width" type="text" inputmode="decimal" value="1000">
+          </div>
+          <div class="field">
+            <label for="bpr-height">Korkeus (mm)</label>
+            <input id="bpr-height" type="text" inputmode="decimal" value="500">
+          </div>
+          <div class="field">
+            <label for="bpr-qty">Kappalemäärä</label>
+            <input id="bpr-qty" type="text" inputmode="numeric" value="1">
+          </div>
+          <div class="field">
+            <label for="bpr-material">Kalvotyyppi</label>
+            <select id="bpr-material">
+              <option value="polymeeri" selected>Polymeerikalvo</option>
+              <option value="valu">Valukalvo</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bpr-lam">Laminointi</label>
+            <select id="bpr-lam">
+              <option value="ei">Ei</option>
+              <option value="normaali" selected>Normaali</option>
+              <option value="mx">MX</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bpr-transfer">Siirtokalvo printtiin</label>
+            <select id="bpr-transfer">
+              <option value="ei" selected>Ei</option>
+              <option value="kylla">Kyllä</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bpr-discount">Alennus</label>
+            <select id="bpr-discount">
+              <option value="0" selected>Ei alennusta</option>
+              <option value="5">5 %</option>
+              <option value="10">10 %</option>
+              <option value="15">15 %</option>
+              <option value="20">20 %</option>
+            </select>
+          </div>
         </div>
-        <div class="field" id="b-paper-size-field" style="display:none">
-          <label for="b-paper-size">Pikavalinta</label>
-          <select id="b-paper-size">
-            <option value="custom" selected>Oma koko</option>
-            <option value="A5">A5 — 148 × 210 mm</option>
-            <option value="A4">A4 — 210 × 297 mm</option>
-            <option value="A3">A3 — 297 × 420 mm</option>
-            <option value="A2">A2 — 420 × 594 mm</option>
-            <option value="A1">A1 — 594 × 841 mm</option>
-          </select>
+        <button class="small-btn" id="bpr-add" type="button" style="width:100%;margin-top:12px;">Lisää koriin</button>
+      </div>
+
+      <div id="bp-siirto" class="subpanel hidden">
+        <div class="grid">
+          <div class="field">
+            <label for="bsi-width">Leveys (mm)</label>
+            <input id="bsi-width" type="text" inputmode="decimal" value="1000">
+          </div>
+          <div class="field">
+            <label for="bsi-height">Korkeus (mm)</label>
+            <input id="bsi-height" type="text" inputmode="decimal" value="1000">
+          </div>
+          <div class="field">
+            <label for="bsi-qty">Kappalemäärä</label>
+            <input id="bsi-qty" type="text" inputmode="numeric" value="5">
+          </div>
+          <div class="field">
+            <label for="bsi-discount">Alennus</label>
+            <select id="bsi-discount">
+              <option value="0" selected>Ei alennusta</option>
+              <option value="5">5 %</option>
+              <option value="10">10 %</option>
+              <option value="15">15 %</option>
+              <option value="20">20 %</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
-          <label for="b-width">Leveys (mm)</label>
-          <input id="b-width" type="text" inputmode="decimal" value="1000">
+        <button class="small-btn" id="bsi-add" type="button" style="width:100%;margin-top:12px;">Lisää koriin</button>
+      </div>
+
+      <div id="bp-paperi" class="subpanel hidden">
+        <div class="grid">
+          <div class="field">
+            <label for="bpa-size">Pikavalinta</label>
+            <select id="bpa-size">
+              <option value="custom" selected>Oma koko</option>
+              <option value="A5">A5 — 148 × 210 mm</option>
+              <option value="A4">A4 — 210 × 297 mm</option>
+              <option value="A3">A3 — 297 × 420 mm</option>
+              <option value="A2">A2 — 420 × 594 mm</option>
+              <option value="A1">A1 — 594 × 841 mm</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bpa-width">Leveys (mm)</label>
+            <input id="bpa-width" type="text" inputmode="decimal" value="1000">
+          </div>
+          <div class="field">
+            <label for="bpa-height">Korkeus (mm)</label>
+            <input id="bpa-height" type="text" inputmode="decimal" value="500">
+          </div>
+          <div class="field">
+            <label for="bpa-qty">Kappalemäärä</label>
+            <input id="bpa-qty" type="text" inputmode="numeric" value="1">
+          </div>
+          <div class="field">
+            <label for="bpa-hand">Käsinleikkuu</label>
+            <select id="bpa-hand">
+              <option value="ei" selected>Ei</option>
+              <option value="kylla">Kyllä</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bpa-discount">Alennus</label>
+            <select id="bpa-discount">
+              <option value="0" selected>Ei alennusta</option>
+              <option value="5">5 %</option>
+              <option value="10">10 %</option>
+              <option value="15">15 %</option>
+              <option value="20">20 %</option>
+            </select>
+          </div>
         </div>
-        <div class="field">
-          <label for="b-height">Korkeus (mm)</label>
-          <input id="b-height" type="text" inputmode="decimal" value="500">
+        <button class="small-btn" id="bpa-add" type="button" style="width:100%;margin-top:12px;">Lisää koriin</button>
+      </div>
+
+      <div id="bp-muu" class="subpanel hidden">
+        <div class="subhead" style="margin-top:0;padding-top:0;border-top:none;">Vapaa tuote</div>
+        <div class="sub" style="margin:0 0 12px;">Nimikkeellä ja hinnalla lisättävä rivi — esim. asennus, kuljetus, vaate tai muu erikseen hinnoiteltava tuote.</div>
+        <div class="grid">
+          <div class="field">
+            <label for="muu-name">Nimike</label>
+            <input id="muu-name" type="text" placeholder="esim. T-paita, Asennustyö">
+          </div>
+          <div class="field">
+            <label for="muu-qty">Kappalemäärä</label>
+            <input id="muu-qty" type="text" inputmode="numeric" value="1">
+          </div>
+          <div class="field">
+            <label for="muu-price-mode">Syötetty hinta on</label>
+            <select id="muu-price-mode">
+              <option value="alv0" selected>ALV 0 %</option>
+              <option value="alv255">ALV 25,5 %</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="muu-price">Yksikköhinta (€)</label>
+            <input id="muu-price" type="text" inputmode="decimal" placeholder="0,00">
+          </div>
         </div>
-        <div class="field">
-          <label for="b-qty">Kappalemäärä</label>
-          <input id="b-qty" type="text" inputmode="numeric" value="1">
+        <label class="discount-hint">
+          <input id="muu-discount-toggle" type="checkbox" disabled>
+          <span id="muu-discount-hint">Ei alennusehdotusta alle 5 kpl.</span>
+        </label>
+        <div style="margin-top:12px;">
+          <button class="small-btn" id="muu-add" type="button" style="width:100%;">Lisää koriin</button>
         </div>
-        <div class="field">
-          <label for="b-discount">Alennus</label>
-          <select id="b-discount">
-            <option value="0" selected>Ei alennusta</option>
-            <option value="5">5 %</option>
-            <option value="10">10 %</option>
-            <option value="15">15 %</option>
-            <option value="20">20 %</option>
-          </select>
+
+        <div class="subhead">Painatukset</div>
+        <div class="sub" style="margin:0 0 12px;">Valmiit painatushinnat koon mukaan (hinnat alv 25,5 % sisältäen, alv 0 % lasketaan tarjoukseen automaattisesti). Voit lisätä useamman koon samalla kertaa — täytä kappalemäärä vain niille koille joita tarvitset. Painatuksiin ei sovelleta alennuksia.</div>
+
+        <div class="print-row">
+          <div class="main">Pieni — 3,00 €/kpl</div>
+          <input id="muu-print-pieni-qty" type="text" inputmode="numeric" placeholder="0" value="0">
+          <label class="print-special"><input id="muu-print-pieni-special" type="checkbox"> Erikoismateriaali</label>
         </div>
-        <div class="field" id="b-paper-hand-field">
-          <label for="b-paper-hand">Käsinleikkuu</label>
-          <select id="b-paper-hand">
-            <option value="ei" selected>Ei</option>
-            <option value="kylla">Kyllä</option>
-          </select>
+        <div class="print-row">
+          <div class="main">Keskikoko — 5,00 €/kpl</div>
+          <input id="muu-print-keski-qty" type="text" inputmode="numeric" placeholder="0" value="0">
+          <label class="print-special"><input id="muu-print-keski-special" type="checkbox"> Erikoismateriaali</label>
         </div>
-        <div class="field" id="b-material-field">
-          <label for="b-material">Kalvotyyppi</label>
-          <select id="b-material">
-            <option value="polymeeri" selected>Polymeerikalvo</option>
-            <option value="valu">Valukalvo</option>
-          </select>
+        <div class="print-row">
+          <div class="main">Iso — 10,00 €/kpl</div>
+          <input id="muu-print-iso-qty" type="text" inputmode="numeric" placeholder="0" value="0">
+          <label class="print-special"><input id="muu-print-iso-special" type="checkbox"> Erikoismateriaali</label>
         </div>
-        <div class="field" id="b-lam-field">
-          <label for="b-lam">Laminointi</label>
-          <select id="b-lam">
-            <option value="ei">Ei</option>
-            <option value="normaali" selected>Normaali</option>
-            <option value="mx">MX</option>
-          </select>
-        </div>
-        <div class="field" id="b-transfer-field">
-          <label for="b-transfer">Siirtokalvo printtiin</label>
-          <select id="b-transfer">
-            <option value="ei" selected>Ei</option>
-            <option value="kylla">Kyllä</option>
-          </select>
+        <div class="note">Erikoismateriaali lisää painatuksen hintaan 2,00 € (alv 25,5 %) per kappale.</div>
+
+        <div style="margin-top:12px;">
+          <button class="small-btn" id="muu-print-add" type="button" style="width:100%;">Lisää painatukset koriin</button>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;">
-        <button class="small-btn" id="b-add" type="button">Lisää koriin</button>
+      <div class="subhead">Kori</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <button class="small-btn secondary" id="b-clear" type="button">Tyhjennä kori</button>
         <button class="small-btn" id="b-offer" type="button">Lataa tarjous</button>
       </div>
@@ -400,7 +531,7 @@
         <div class="mini"><div class="k">Korin sisältö</div><div class="v" id="b-type-label">Printtitarrat</div></div>
       </div>
 
-      <div class="note">Korissa voi olla samaan aikaan printtitarroja ja siirtokalvotarroja. Neliöhintaportaat lasketaan koko projektin yhteispinta-alasta, mutta jokainen rivi käyttää omaa tuotetyyppiään ja lisävalintojaan. Setup lisätään kerran per tuotetyyppi. Jos korissa on sekä printti- että siirtokalvotarroja, niiden yhteinen setup on 30 €. Korin rivikohtainen alennus pienentää kokonaishintaa, mutta alennusprosenttia ei tulosteta tarjoukseen.</div>
+      <div class="note">Korissa voi olla samaan aikaan printtitarroja ja siirtokalvotarroja. Neliöhintaportaat lasketaan koko projektin yhteispinta-alasta, mutta jokainen rivi käyttää omaa tuotetyyppiään ja lisävalintojaan. Setup lisätään kerran per tuotetyyppi. Jos korissa on sekä printti- että siirtokalvotarroja, niiden yhteinen setup on 30 €. Muut tuotteet -rivit eivät vaikuta neliöhintaportaisiin eikä setup-maksuun, vaan käyttävät suoraan annettua yksikköhintaa. Korin rivikohtainen alennus pienentää kokonaishintaa, mutta alennusprosenttia ei tulosteta tarjoukseen.</div>
     </div>
   </section>
 
@@ -497,9 +628,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return n.toFixed(3).replace('.', ',');
   }
 
-  function offerRound2(n) {
+  function offerRoundPrecise(n) {
     n = Number(n) || 0;
-    return Math.round((n + Number.EPSILON) * 100) / 100;
+    return Math.round((n + Number.EPSILON) * 1e6) / 1e6;
   }
 
   function hideSheetGridLines(sheetXml) {
@@ -616,15 +747,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
 
+  function aleDiscountForQty(qty) {
+    if (qty >= 15) return 15;
+    if (qty >= 5) return 10;
+    return 0;
+  }
+
   function calcAle() {
     var mode = byId('a-price-mode').value;
     var inputPrice = safe(byId('a-price').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('a-qty').value, 1)));
     var base0 = mode === 'alv255' ? inputPrice / 1.255 : inputPrice;
-    var discount = 0;
-
-    if (qty >= 15) discount = 15;
-    else if (qty >= 5) discount = 10;
+    var discount = aleDiscountForQty(qty);
 
     var piece0 = base0 * (1 - discount / 100);
     var piece25 = piece0 * 1.255;
@@ -641,7 +775,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 
   var projectBasket = [];
-  var projectType = 'printti';
 
   function printBaseSqmByArea(totalArea) {
     if (totalArea >= 15) return 43;
@@ -672,17 +805,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function projectTypeLabel(type) {
     if (type === 'siirto') return 'Siirtokalvotarrat';
     if (type === 'paperi') return 'Paperi';
+    if (type === 'muu') return 'Muu tuote';
     return 'Printtitarrat';
   }
 
   function projectTypeShortLabel(type) {
     if (type === 'siirto') return 'Siirtokalvo';
     if (type === 'paperi') return 'Paperi';
+    if (type === 'muu') return 'Muu';
     return 'Printti';
   }
 
   function getProjectItemType(item) {
-    return item && item.type ? item.type : (projectType || 'printti');
+    return item && item.type ? item.type : 'printti';
   }
 
   function paperBaseSqmByArea(totalArea) {
@@ -753,6 +888,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function projectOfferDescription(type, item) {
+    if (type === 'muu') return item.name;
     var sizeText = '(' + item.width + ' × ' + item.height + ' mm)';
     if (type === 'siirto') return 'Siirtokalvotarra ' + sizeText;
     if (type === 'paperi') return 'Paperi ' + sizeText;
@@ -785,7 +921,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     if (qtyByType.printti > 0) parts.push('Printti');
     if (qtyByType.siirto > 0) parts.push('Siirtokalvo');
     if (qtyByType.paperi > 0) parts.push('Paperi');
-    return parts.length ? parts.join(' + ') : projectTypeLabel(byId('b-type').value);
+    if (qtyByType.muu > 0) parts.push('Muut tuotteet');
+    return parts.length ? parts.join(' + ') : 'Kori on tyhjä';
   }
 
   function printOptionsText(item) {
@@ -859,6 +996,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         sqm = baseSqm;
         unit0 = rowItem.area * sqm + setupPerPiece;
         if (rowItem.hand === 'kylla') unit0 += 0.4;
+      } else if (rowType === 'muu') {
+        unit0 = rowItem.price;
       } else {
         baseSqm = printItemBaseSqm(printBaseSqm, rowItem);
         sqm = baseSqm + lamAddByValue(rowItem.lam) + (rowItem.transfer === 'kylla' ? 5 : 0);
@@ -915,8 +1054,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 
   function applyProjectPaperQuickSize() {
-    if (byId('b-type').value !== 'paperi') return;
-    var s = byId('b-paper-size').value;
+    var s = byId('bpa-size').value;
     var map = {
       A5:[148,210],
       A4:[210,297],
@@ -925,63 +1063,188 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       A1:[594,841]
     };
     if (map[s]) {
-      byId('b-width').value = map[s][0];
-      byId('b-height').value = map[s][1];
+      byId('bpa-width').value = map[s][0];
+      byId('bpa-height').value = map[s][1];
     }
   }
 
-  function updateProjectFields() {
-    var type = byId('b-type').value;
-    var showPrintOptions = type === 'printti';
-    var showPaperOptions = type === 'paperi';
-    byId('b-paper-size-field').style.display = showPaperOptions ? 'block' : 'none';
-    byId('b-paper-hand-field').style.display = showPaperOptions ? 'block' : 'none';
-    byId('b-material-field').style.display = showPrintOptions ? 'block' : 'none';
-    byId('b-lam-field').style.display = showPrintOptions ? 'block' : 'none';
-    byId('b-transfer-field').style.display = showPrintOptions ? 'block' : 'none';
-  }
-
-  function setProjectTypeIfEmpty() {
-    projectType = byId('b-type').value;
-    updateProjectFields();
-    calcProjectBasket();
-    return true;
-  }
-
-  function addProjectItem() {
-    setProjectTypeIfEmpty();
-    applyProjectPaperQuickSize();
-
-    var type = byId('b-type').value;
-    var width = safe(byId('b-width').value, 0);
-    var height = safe(byId('b-height').value, 0);
-    var qty = Math.max(1, Math.round(safe(byId('b-qty').value, 1)));
-    var discount = validDiscount(byId('b-discount').value);
+  function addPrintProjectItem() {
+    var width = safe(byId('bpr-width').value, 0);
+    var height = safe(byId('bpr-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('bpr-qty').value, 1)));
+    var discount = validDiscount(byId('bpr-discount').value);
 
     if (width <= 0 || height <= 0 || qty <= 0) {
       alert('Syötä leveys, korkeus ja kappalemäärä.');
       return;
     }
 
-    var area = (width / 1000) * (height / 1000);
-    var item = {
-      type: type,
+    projectBasket.push({
+      type: 'printti',
       width: width,
       height: height,
       qty: qty,
-      area: area,
-      discount: discount
-    };
+      area: (width / 1000) * (height / 1000),
+      discount: discount,
+      material: byId('bpr-material').value,
+      lam: byId('bpr-lam').value,
+      transfer: byId('bpr-transfer').value
+    });
+    calcProjectBasket();
+  }
 
-    if (type === 'printti') {
-      item.material = byId('b-material').value;
-      item.lam = byId('b-lam').value;
-      item.transfer = byId('b-transfer').value;
-    } else if (type === 'paperi') {
-      item.hand = byId('b-paper-hand').value;
+  function addSiirtoProjectItem() {
+    var width = safe(byId('bsi-width').value, 0);
+    var height = safe(byId('bsi-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('bsi-qty').value, 1)));
+    var discount = validDiscount(byId('bsi-discount').value);
+
+    if (width <= 0 || height <= 0 || qty <= 0) {
+      alert('Syötä leveys, korkeus ja kappalemäärä.');
+      return;
     }
 
-    projectBasket.push(item);
+    projectBasket.push({
+      type: 'siirto',
+      width: width,
+      height: height,
+      qty: qty,
+      area: (width / 1000) * (height / 1000),
+      discount: discount
+    });
+    calcProjectBasket();
+  }
+
+  function addPaperiProjectItem() {
+    applyProjectPaperQuickSize();
+
+    var width = safe(byId('bpa-width').value, 0);
+    var height = safe(byId('bpa-height').value, 0);
+    var qty = Math.max(1, Math.round(safe(byId('bpa-qty').value, 1)));
+    var discount = validDiscount(byId('bpa-discount').value);
+
+    if (width <= 0 || height <= 0 || qty <= 0) {
+      alert('Syötä leveys, korkeus ja kappalemäärä.');
+      return;
+    }
+
+    projectBasket.push({
+      type: 'paperi',
+      width: width,
+      height: height,
+      qty: qty,
+      area: (width / 1000) * (height / 1000),
+      discount: discount,
+      hand: byId('bpa-hand').value
+    });
+    calcProjectBasket();
+  }
+
+  function updateMuuDiscountHint() {
+    var qty = Math.max(1, Math.round(safe(byId('muu-qty').value, 1)));
+    var suggested = aleDiscountForQty(qty);
+    var hint = byId('muu-discount-hint');
+    var toggle = byId('muu-discount-toggle');
+
+    if (suggested > 0) {
+      hint.textContent = 'Ehdotettu alennus (' + qty + ' kpl): ' + suggested + ' %';
+      toggle.disabled = false;
+    } else {
+      hint.textContent = 'Ei alennusehdotusta alle 5 kpl.';
+      toggle.checked = false;
+      toggle.disabled = true;
+    }
+  }
+
+  function addCustomProjectItem() {
+    var name = byId('muu-name').value.trim();
+    var qty = Math.max(1, Math.round(safe(byId('muu-qty').value, 1)));
+    var mode = byId('muu-price-mode').value;
+    var inputPrice = safe(byId('muu-price').value, 0);
+    var price = mode === 'alv255' ? inputPrice / 1.255 : inputPrice;
+
+    if (!name) {
+      alert('Anna nimike.');
+      return;
+    }
+    if (price <= 0) {
+      alert('Syötä yksikköhinta.');
+      return;
+    }
+
+    var discount = byId('muu-discount-toggle').checked ? aleDiscountForQty(qty) : 0;
+
+    projectBasket.push({
+      type: 'muu',
+      name: name,
+      qty: qty,
+      price: price,
+      area: 0,
+      discount: discount
+    });
+
+    byId('muu-name').value = '';
+    byId('muu-price').value = '';
+    byId('muu-price-mode').value = 'alv0';
+    byId('muu-qty').value = '1';
+    updateMuuDiscountHint();
+    calcProjectBasket();
+  }
+
+  var MUU_PRINT_SIZES = ['pieni', 'keski', 'iso'];
+
+  // Hinnat annettu asiakkaalle alv 25,5 % sisältäen (pieni 3,00 €, keskikoko 5,00 €, iso 10,00 €);
+  // muunnetaan tarkasti alv 0 %:iin, jotta alvillinen hinta täsmää senttiä myöten.
+  function muuPrintBasePrice(size) {
+    if (size === 'pieni') return 3.00 / 1.255;
+    if (size === 'keski') return 5.00 / 1.255;
+    if (size === 'iso') return 10.00 / 1.255;
+    return 0;
+  }
+
+  function muuPrintSizeLabel(size) {
+    if (size === 'pieni') return 'Painatus, pieni';
+    if (size === 'keski') return 'Painatus, keskikoko';
+    return 'Painatus, iso';
+  }
+
+  // Erikoismateriaalilisä on asiakkaalle 2,00 € alv 25,5 % sisältäen; muunnetaan alv 0 %:iin kuten muutkin sisäiset hinnat.
+  function muuPrintSpecialSurchargeAlv0() {
+    return 2 / 1.255;
+  }
+
+  function addPrintRowsToBasket() {
+    var added = 0;
+
+    for (var i = 0; i < MUU_PRINT_SIZES.length; i++) {
+      var size = MUU_PRINT_SIZES[i];
+      var qty = Math.max(0, Math.round(safe(byId('muu-print-' + size + '-qty').value, 0)));
+      if (qty <= 0) continue;
+
+      var special = byId('muu-print-' + size + '-special').checked;
+      var price = muuPrintBasePrice(size);
+      if (special) price += muuPrintSpecialSurchargeAlv0();
+
+      projectBasket.push({
+        type: 'muu',
+        name: muuPrintSizeLabel(size) + (special ? ' + erikoismateriaali' : ''),
+        qty: qty,
+        price: price,
+        area: 0,
+        discount: 0
+      });
+      added++;
+    }
+
+    if (added === 0) {
+      alert('Anna kappalemäärä vähintään yhdelle painatuskoolle.');
+      return;
+    }
+
+    for (var j = 0; j < MUU_PRINT_SIZES.length; j++) {
+      byId('muu-print-' + MUU_PRINT_SIZES[j] + '-qty').value = '0';
+      byId('muu-print-' + MUU_PRINT_SIZES[j] + '-special').checked = false;
+    }
     calcProjectBasket();
   }
 
@@ -998,7 +1261,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   function clearProjectBasket() {
     projectBasket = [];
-    projectType = byId('b-type').value;
     calcProjectBasket();
   }
 
@@ -1024,12 +1286,22 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     for (var j = 0; j < projectBasket.length; j++) {
       var item = projectBasket[j];
       var price = calc.lines[j] || { unit0: 0, unit25: 0, total0: 0, total25: 0, discount: validDiscount(item.discount), sqm: 0, baseSqm: 0, optionText: '', shortTypeLabel: projectTypeShortLabel(getProjectItemType(item)) };
+      var isCustom = getProjectItemType(item) === 'muu';
+      var mainLine = isCustom
+        ? xmlEscape(item.name) + ' · ' + item.qty + ' kpl'
+        : price.shortTypeLabel + ' · ' + item.width + ' × ' + item.height + ' mm · ' + item.qty + ' kpl';
+      var areaLine = isCustom
+        ? ''
+        : '<div class="basket-sub">Pinta-ala / kpl: ' + num3(item.area) + ' m² · yhteensä: ' + num3(price.totalArea || (item.area * item.qty)) + ' m²</div>';
+      var priceLine = isCustom
+        ? '<div class="basket-sub">Yksikköhinta: ' + euroValue(price.unit0) + ' alv 0 % / ' + euroValue(price.unit25) + ' alv 25,5 % · rivin yhteensä: ' + euroValue(price.total0) + ' alv 0 %</div>'
+        : '<div class="basket-sub">Neliöhinta: ' + num2(price.sqm) + ' €/m² · yksikköhinta: ' + euroValue(price.unit0) + ' alv 0 % / ' + euroValue(price.unit25) + ' alv 25,5 % · rivin yhteensä: ' + euroValue(price.total0) + ' alv 0 %</div>';
       rows += '<div class="basket-row">'
         + '<div>'
-        + '<div class="basket-main">' + price.shortTypeLabel + ' · ' + item.width + ' × ' + item.height + ' mm · ' + item.qty + ' kpl</div>'
-        + '<div class="basket-sub">Pinta-ala / kpl: ' + num3(item.area) + ' m² · yhteensä: ' + num3(price.totalArea || (item.area * item.qty)) + ' m²</div>'
+        + '<div class="basket-main">' + mainLine + '</div>'
+        + areaLine
         + (price.optionText ? '<div class="basket-sub">Valinnat: ' + price.optionText + '</div>' : '')
-        + '<div class="basket-sub">Neliöhinta: ' + num2(price.sqm) + ' €/m² · yksikköhinta: ' + euroValue(price.unit0) + ' alv 0 % / ' + euroValue(price.unit25) + ' alv 25,5 % · rivin yhteensä: ' + euroValue(price.total0) + ' alv 0 %</div>'
+        + priceLine
         + '</div>'
         + '<div class="basket-discount"><label>Alennus</label><select onchange="updateProjectItemDiscount(' + j + ', this.value)">'
         + '<option value="0"' + (price.discount === 0 ? ' selected' : '') + '>Ei</option>'
@@ -1312,7 +1584,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       sheetXml = setCell(sheetXml, 'B' + row, line.description, 's');
       sheetXml = setCell(sheetXml, 'C' + row, line.qty, 'n');
       sheetXml = setCell(sheetXml, 'D' + row, line.unit, 's');
-      sheetXml = setCell(sheetXml, 'E' + row, offerRound2(line.unitPrice0), 'n');
+      sheetXml = setCell(sheetXml, 'E' + row, offerRoundPrecise(line.unitPrice0), 'n');
       sheetXml = setCell(sheetXml, 'F' + row, 0.255, 'n');
       sheetXml = setCell(sheetXml, 'G' + row, 'ROUND(C' + row + '*E' + row + '*F' + row + ',2)', 'f');
       sheetXml = setCell(sheetXml, 'H' + row, 'ROUND(C' + row + '*E' + row + '*(1+F' + row + '),2)', 'f');
@@ -1372,6 +1644,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
   }
 
+  function bindProjectSubtabs() {
+    var subtabs = document.querySelectorAll('#projekti .subtab');
+    for (var i = 0; i < subtabs.length; i++) {
+      subtabs[i].addEventListener('click', function () {
+        var target = this.getAttribute('data-subtarget');
+        var allSubtabs = document.querySelectorAll('#projekti .subtab');
+        var subpanels = document.querySelectorAll('#projekti .subpanel');
+        for (var j = 0; j < allSubtabs.length; j++) allSubtabs[j].classList.remove('active');
+        for (var k = 0; k < subpanels.length; k++) subpanels[k].classList.add('hidden');
+        this.classList.add('active');
+        byId(target).classList.remove('hidden');
+      }, false);
+    }
+  }
+
   function init() {
     bindCalc('#siirto input', calcSiirto);
     bindCalc('#printti input, #printti select', calcPrintti);
@@ -1380,17 +1667,23 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     bindCalc('#paperi input, #paperi select', calcPaperi);
     bindCalc('#projekti input, #projekti select', calcProjectBasket);
     bindTabs();
+    bindProjectSubtabs();
     bindPaperManualSize();
-    byId('b-add').addEventListener('click', addProjectItem, false);
+    byId('bpr-add').addEventListener('click', addPrintProjectItem, false);
+    byId('bsi-add').addEventListener('click', addSiirtoProjectItem, false);
+    byId('bpa-add').addEventListener('click', addPaperiProjectItem, false);
+    byId('muu-add').addEventListener('click', addCustomProjectItem, false);
+    byId('muu-print-add').addEventListener('click', addPrintRowsToBasket, false);
     byId('b-clear').addEventListener('click', clearProjectBasket, false);
     byId('b-offer').addEventListener('click', downloadOfferXlsx, false);
-    byId('b-type').addEventListener('change', setProjectTypeIfEmpty, false);
+    byId('muu-qty').addEventListener('input', updateMuuDiscountHint, false);
+    byId('muu-qty').addEventListener('change', updateMuuDiscountHint, false);
     calcSiirto();
     calcPrintti();
     calcKate();
     calcAle();
     calcPaperi();
-    updateProjectFields();
+    updateMuuDiscountHint();
     calcProjectBasket();
   }
 
