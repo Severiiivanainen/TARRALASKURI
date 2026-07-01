@@ -67,6 +67,22 @@
       .print-row{grid-template-columns:1fr}
       .title{font-size:24px}.result-value{font-size:24px}.mini .v{font-size:18px}.section{padding:14px}
     }
+    #pdf-printout{display:none}
+    #pdf-printout .pdf-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #000;padding-bottom:14px;margin-bottom:18px}
+    #pdf-printout .pdf-logo{max-width:200px;height:auto}
+    #pdf-printout .pdf-title{font-size:24px;font-weight:800;letter-spacing:.04em}
+    #pdf-printout .pdf-meta{margin-bottom:18px;line-height:1.5;font-size:14px}
+    #pdf-printout .pdf-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+    #pdf-printout .pdf-table th,#pdf-printout .pdf-table td{border:1px solid #999;padding:6px 8px;text-align:left}
+    #pdf-printout .pdf-table th{background:#eee}
+    #pdf-printout .pdf-table th.num,#pdf-printout .pdf-table td.num{text-align:right}
+    #pdf-printout .pdf-totals{margin-left:auto;max-width:280px;font-size:14px;line-height:1.6}
+    #pdf-printout .pdf-grand{font-size:18px;font-weight:800;border-top:2px solid #000;padding-top:6px;margin-top:6px}
+    @media print{
+      body.printing-offer > *:not(#pdf-printout){display:none !important}
+      body.printing-offer{background:#fff}
+      #pdf-printout{display:block !important;color:#000;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:0}
+    }
   </style>
 </head>
 <body>
@@ -517,9 +533,16 @@
       </div>
 
       <div class="subhead">Kori</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="field">
+        <label for="offer-work-hours">Työtunnit (h, alv 0 % 75 €/h)</label>
+        <input id="offer-work-hours" type="text" inputmode="decimal" placeholder="0">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
         <button class="small-btn secondary" id="b-clear" type="button">Tyhjennä kori</button>
-        <button class="small-btn" id="b-offer" type="button">Lataa tarjous</button>
+        <button class="small-btn" id="b-offer" type="button">Lataa tarjous (Excel)</button>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="small-btn secondary" id="b-offer-pdf" type="button" style="width:100%;">Lataa PDF</button>
       </div>
 
       <div class="basket-list" id="b-list">
@@ -1636,6 +1659,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     zip.file('xl/styles.xml', stylesXml);
   }
 
+  function getOfferWorkHours() {
+    return Math.max(0, safe(byId('offer-work-hours').value, 0));
+  }
+
   async function downloadOfferXlsx() {
     if (projectBasket.length === 0) {
       alert('Projektikori on tyhjä.');
@@ -1684,9 +1711,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       sheetXml = setCell(sheetXml, 'H' + row, 'ROUND(C' + row + '*E' + row + '*(1+F' + row + '),2)', 'f');
     }
 
+    var workHours = getOfferWorkHours();
     var workRow = 17 + calc.lines.length;
     sheetXml = setCell(sheetXml, 'B' + workRow, 'Työ', 's');
-    sheetXml = setCell(sheetXml, 'C' + workRow, '', 'blank');
+    sheetXml = setCell(sheetXml, 'C' + workRow, workHours > 0 ? workHours : '', workHours > 0 ? 'n' : 'blank');
     sheetXml = setCell(sheetXml, 'D' + workRow, 'h', 's');
     sheetXml = setCell(sheetXml, 'E' + workRow, 75, 'n');
     sheetXml = setCell(sheetXml, 'F' + workRow, 0.255, 'n');
@@ -1713,6 +1741,91 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }, 1000);
   }
 
+  function buildOfferPrintHtml(calc, customer, address, city, workHours) {
+    var logoImg = document.querySelector('#loginScreen img');
+    var logoSrc = logoImg ? logoImg.src : '';
+    var today = new Date();
+    var validUntil = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+    var dateStr = today.toLocaleDateString('fi-FI');
+    var validUntilStr = validUntil.toLocaleDateString('fi-FI');
+
+    var rows = '';
+    for (var i = 0; i < calc.lines.length; i++) {
+      var line = calc.lines[i];
+      rows += '<tr>'
+        + '<td>' + xmlEscape(line.description) + '</td>'
+        + '<td class="num">' + xmlEscape(line.qty) + '</td>'
+        + '<td>' + xmlEscape(line.unit) + '</td>'
+        + '<td class="num">' + euroValue(line.unitPrice0) + '</td>'
+        + '<td class="num">' + euroValue(line.vat) + '</td>'
+        + '<td class="num">' + euroValue(line.total25) + '</td>'
+        + '</tr>';
+    }
+
+    var grandTotal0 = calc.total0;
+    var grandVat = calc.vat;
+    var grandTotal25 = calc.total25;
+
+    if (workHours > 0) {
+      var workUnit0 = 75;
+      var workTotal0 = workHours * workUnit0;
+      var workVat = workTotal0 * 0.255;
+      var workTotal25 = workTotal0 * 1.255;
+      rows += '<tr>'
+        + '<td>Työ</td>'
+        + '<td class="num">' + num2(workHours) + '</td>'
+        + '<td>h</td>'
+        + '<td class="num">' + euroValue(workUnit0) + '</td>'
+        + '<td class="num">' + euroValue(workVat) + '</td>'
+        + '<td class="num">' + euroValue(workTotal25) + '</td>'
+        + '</tr>';
+      grandTotal0 += workTotal0;
+      grandVat += workVat;
+      grandTotal25 += workTotal25;
+    }
+
+    return ''
+      + '<div class="pdf-header">'
+      + (logoSrc ? '<img src="' + logoSrc + '" class="pdf-logo" alt="VIBEMEDIA">' : '<div></div>')
+      + '<div class="pdf-title">TARJOUS</div>'
+      + '</div>'
+      + '<div class="pdf-meta">'
+      + '<div><strong>Asiakas:</strong> ' + xmlEscape(customer) + '</div>'
+      + (address ? '<div>' + xmlEscape(address) + '</div>' : '')
+      + (city ? '<div>' + xmlEscape(city) + '</div>' : '')
+      + '<div style="margin-top:8px;"><strong>Päiväys:</strong> ' + dateStr + '</div>'
+      + '<div><strong>Voimassa:</strong> ' + validUntilStr + ' asti</div>'
+      + '</div>'
+      + '<table class="pdf-table"><thead><tr>'
+      + '<th>Tuote</th><th class="num">Määrä</th><th>Yks.</th><th class="num">á-hinta alv 0 %</th><th class="num">ALV</th><th class="num">Yhteensä</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<div class="pdf-totals">'
+      + '<div>Yhteensä alv 0 %: ' + euroValue(grandTotal0) + '</div>'
+      + '<div>ALV 25,5 %: ' + euroValue(grandVat) + '</div>'
+      + '<div class="pdf-grand">Yhteensä: ' + euroValue(grandTotal25) + '</div>'
+      + '</div>';
+  }
+
+  function downloadOfferPdf() {
+    if (projectBasket.length === 0) {
+      alert('Projektikori on tyhjä.');
+      return;
+    }
+
+    var calc = getProjectOfferCalc();
+    var customer = byId('offer-customer').value || 'Asiakkaan nimi';
+    var address = byId('offer-address').value;
+    var city = byId('offer-city').value;
+    var workHours = getOfferWorkHours();
+
+    byId('pdf-printout').innerHTML = buildOfferPrintHtml(calc, customer, address, city, workHours);
+    document.body.classList.add('printing-offer');
+    window.print();
+  }
+
+  window.addEventListener('afterprint', function () {
+    document.body.classList.remove('printing-offer');
+  }, false);
 
   function bindCalc(selector, fn) {
     var els = document.querySelectorAll(selector);
@@ -1770,6 +1883,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     byId('muu-print-add').addEventListener('click', addPrintRowsToBasket, false);
     byId('b-clear').addEventListener('click', clearProjectBasket, false);
     byId('b-offer').addEventListener('click', downloadOfferXlsx, false);
+    byId('b-offer-pdf').addEventListener('click', downloadOfferPdf, false);
     byId('muu-qty').addEventListener('input', updateMuuDiscountHint, false);
     byId('muu-qty').addEventListener('change', updateMuuDiscountHint, false);
     byId('offer-saved-customer').addEventListener('change', applySelectedCustomer, false);
@@ -1793,6 +1907,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 })();
 </script>
 </div>
+
+<div id="pdf-printout"></div>
 
 <script>
 (function () {
