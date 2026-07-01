@@ -399,7 +399,7 @@
         <div class="mini"><div class="k">Korin sisältö</div><div class="v" id="b-type-label">Printtitarrat</div></div>
       </div>
 
-      <div class="note">Korissa voi olla samaan aikaan printtitarroja ja siirtokalvotarroja. Neliöhintaportaat lasketaan koko projektin yhteispinta-alasta, mutta jokainen rivi käyttää omaa tuotetyyppiään ja lisävalintojaan. Setup lisätään kerran per tuotetyyppi. Korin rivikohtainen alennus pienentää kokonaishintaa, mutta alennusprosenttia ei tulosteta tarjoukseen.</div>
+      <div class="note">Korissa voi olla samaan aikaan printtitarroja ja siirtokalvotarroja. Neliöhintaportaat lasketaan koko projektin yhteispinta-alasta, mutta jokainen rivi käyttää omaa tuotetyyppiään ja lisävalintojaan. Setup lisätään kerran per tuotetyyppi. Jos korissa on sekä printti- että siirtokalvotarroja, niiden yhteinen setup on 30 €. Korin rivikohtainen alennus pienentää kokonaishintaa, mutta alennusprosenttia ei tulosteta tarjoukseen.</div>
     </div>
   </section>
 
@@ -721,6 +721,44 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return 16;
   }
 
+
+  function setupInfoByProjectTypes(qtyByType) {
+    var setupByType = { printti: 0, siirto: 0, paperi: 0 };
+    var printQty = qtyByType.printti || 0;
+    var siirtoQty = qtyByType.siirto || 0;
+    var paperQty = qtyByType.paperi || 0;
+
+    if (printQty > 0 && siirtoQty > 0) {
+      var combinedQty = printQty + siirtoQty;
+      var sharedSetup = 30;
+      setupByType.printti = combinedQty > 0 ? sharedSetup * (printQty / combinedQty) : 0;
+      setupByType.siirto = combinedQty > 0 ? sharedSetup * (siirtoQty / combinedQty) : 0;
+    } else {
+      if (printQty > 0) setupByType.printti = setupByProjectType('printti');
+      if (siirtoQty > 0) setupByType.siirto = setupByProjectType('siirto');
+    }
+
+    if (paperQty > 0) setupByType.paperi = setupByProjectType('paperi');
+
+    return {
+      total: setupByType.printti + setupByType.siirto + setupByType.paperi,
+      byType: setupByType,
+      perPieceByType: {
+        printti: printQty > 0 ? setupByType.printti / printQty : 0,
+        siirto: siirtoQty > 0 ? setupByType.siirto / siirtoQty : 0,
+        paperi: paperQty > 0 ? setupByType.paperi / paperQty : 0
+      }
+    };
+  }
+
+  function projectOfferDescription(type, item) {
+    var sizeText = '(' + item.width + ' × ' + item.height + ' mm)';
+    if (type === 'siirto') return 'Siirtokalvotarra ' + sizeText;
+    if (type === 'paperi') return 'Paperi ' + sizeText;
+    if (item.lam && item.lam !== 'ei') return 'Printtitarra laminoitu ' + sizeText;
+    return 'Printtitarra ' + sizeText;
+  }
+
   function summarizeSqmValues(values) {
     if (!values.length) return '0,00 €/m²';
     var min = values[0];
@@ -787,15 +825,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     var printBaseSqm = totalArea > 0 ? printBaseSqmByArea(totalArea) : 0;
     var siirtoBaseSqm = totalArea > 0 ? siirtoSqmByAreaAndQty(totalArea, Math.max(1, qtyByType.siirto)) : 0;
     var paperBaseSqm = totalArea > 0 ? paperBaseSqmByArea(totalArea) : 0;
-    var setupTotal = 0;
-
-    if (qtyByType.printti > 0) setupTotal += setupByProjectType('printti');
-    if (qtyByType.siirto > 0) setupTotal += setupByProjectType('siirto');
-    if (qtyByType.paperi > 0) setupTotal += setupByProjectType('paperi');
+    var setupInfo = setupInfoByProjectTypes(qtyByType);
+    var setupTotal = setupInfo.total;
 
     var siirtoMinActive = false;
     if (qtyByType.siirto > 0) {
-      var normalSiirtoAverage = (setupByProjectType('siirto') + areaByType.siirto * siirtoBaseSqm) / qtyByType.siirto;
+      var normalSiirtoAverage = (setupInfo.byType.siirto + areaByType.siirto * siirtoBaseSqm) / qtyByType.siirto;
       siirtoMinActive = normalSiirtoAverage < 0.6;
     }
 
@@ -809,7 +844,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       var rowType = getProjectItemType(rowItem);
       var baseSqm = 0;
       var sqm = 0;
-      var setupPerPiece = qtyByType[rowType] > 0 ? setupByProjectType(rowType) / qtyByType[rowType] : 0;
+      var setupPerPiece = setupInfo.perPieceByType[rowType] || 0;
       var unit0 = 0;
       var optionText = projectItemOptionText(rowItem);
 
@@ -854,7 +889,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         total25: rowTotal0 * 1.255,
         discount: discount,
         optionText: optionText,
-        description: projectTypeLabel(rowType) + ' ' + rowItem.width + ' × ' + rowItem.height + ' mm' + (optionText ? ' (' + optionText + ')' : ''),
+        description: projectOfferDescription(rowType, rowItem),
         unit: 'kpl',
         unitPrice0: unit0,
         vatRate: 0.255,
