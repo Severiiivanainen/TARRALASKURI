@@ -14,9 +14,11 @@
     .wrap{max-width:760px;margin:0 auto;padding:18px 14px 34px}
     .title{font-size:28px;font-weight:800;margin:2px 0 10px}
     .sub{color:var(--muted);margin:0 0 16px;line-height:1.35}
-    .tabs{display:grid;grid-template-columns:repeat(6, minmax(0, 1fr));gap:10px;margin-bottom:14px}
+    .tabs{display:grid;grid-template-columns:repeat(5, minmax(0, 1fr));gap:10px;margin-bottom:14px}
     .tab{border:1px solid var(--border);background:#fff;color:#000;border-radius:14px;padding:14px 12px;font-size:16px;font-weight:700;cursor:pointer}
     .tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+    .tab-featured{grid-column:1 / -1;border:2px solid var(--accent);background:#232326;color:var(--accent);border-radius:16px;padding:18px 12px;font-size:20px;font-weight:800;cursor:pointer;margin-bottom:2px}
+    .tab-featured.active{background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(255,122,0,.35)}
     .subtabs{display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:8px;margin-bottom:16px}
     .subtab{border:1px solid var(--border);background:#232326;color:var(--text);border-radius:12px;padding:10px 8px;font-size:13px;font-weight:700;cursor:pointer}
     .subtab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -58,6 +60,7 @@
     @media (max-width:520px){
       .tabs{grid-template-columns:1fr 1fr}
       .tab{font-size:12px;padding:10px 4px}
+      .tab-featured{font-size:16px;padding:14px 10px}
       .subtabs{grid-template-columns:1fr 1fr}
       .subtab{font-size:11px;padding:8px 4px}
       .basket-row{grid-template-columns:1fr}
@@ -85,9 +88,9 @@
   <div class="sub">VIBEMAFIA.</div>
 
   <div class="tabs">
+    <button class="tab tab-featured" data-target="projekti" type="button">Projektikori</button>
     <button class="tab active" data-target="printti" type="button">Printti</button>
     <button class="tab" data-target="siirto" type="button">Siirtokalvo</button>
-    <button class="tab" data-target="projekti" type="button">Projektikori</button>
     <button class="tab" data-target="paperi" type="button">Paperi</button>
     <button class="tab" data-target="ale" type="button">Ale</button>
     <button class="tab" data-target="kate" type="button">Kate</button>
@@ -298,6 +301,18 @@
 
       <div class="subhead" style="margin-top:0;padding-top:0;border-top:none;">Tarjouksen tiedot</div>
       <div class="grid">
+        <div class="field">
+          <label for="offer-saved-customer">Tallennetut asiakkaat</label>
+          <select id="offer-saved-customer">
+            <option value="">— Valitse tallennettu asiakas —</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+        <button class="small-btn secondary" id="offer-save-customer" type="button">Tallenna asiakas</button>
+        <button class="small-btn secondary" id="offer-delete-customer" type="button">Poista valittu</button>
+      </div>
+      <div class="grid" style="margin-top:12px;">
         <div class="field">
           <label for="offer-customer">Asiakkaan nimi</label>
           <input id="offer-customer" type="text" placeholder="Asiakas / yritys">
@@ -775,6 +790,85 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 
   var projectBasket = [];
+  var SAVED_CUSTOMERS_KEY = 'tarralaskuri_customers_v1';
+
+  function loadSavedCustomers() {
+    try {
+      var list = JSON.parse(localStorage.getItem(SAVED_CUSTOMERS_KEY) || '[]');
+      return Array.isArray(list) ? list : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function persistSavedCustomers(list) {
+    localStorage.setItem(SAVED_CUSTOMERS_KEY, JSON.stringify(list));
+  }
+
+  function renderSavedCustomers(selectIndex) {
+    var select = byId('offer-saved-customer');
+    var list = loadSavedCustomers();
+    var options = '<option value="">— Valitse tallennettu asiakas —</option>';
+
+    for (var i = 0; i < list.length; i++) {
+      options += '<option value="' + i + '">' + xmlEscape(list[i].name) + '</option>';
+    }
+    select.innerHTML = options;
+    if (selectIndex != null && selectIndex >= 0 && selectIndex < list.length) {
+      select.value = String(selectIndex);
+    }
+  }
+
+  function applySelectedCustomer() {
+    var select = byId('offer-saved-customer');
+    if (select.value === '') return;
+    var customer = loadSavedCustomers()[Number(select.value)];
+    if (!customer) return;
+    byId('offer-customer').value = customer.name || '';
+    byId('offer-address').value = customer.address || '';
+    byId('offer-city').value = customer.city || '';
+  }
+
+  function saveCurrentCustomer() {
+    var name = byId('offer-customer').value.trim();
+    if (!name) {
+      alert('Anna asiakkaan nimi ennen tallennusta.');
+      return;
+    }
+
+    var record = {
+      name: name,
+      address: byId('offer-address').value.trim(),
+      city: byId('offer-city').value.trim()
+    };
+
+    var list = loadSavedCustomers();
+    var existingIndex = -1;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name.toLowerCase() === name.toLowerCase()) {
+        existingIndex = i;
+        break;
+      }
+    }
+
+    if (existingIndex >= 0) list[existingIndex] = record;
+    else list.push(record);
+
+    persistSavedCustomers(list);
+    renderSavedCustomers(existingIndex >= 0 ? existingIndex : list.length - 1);
+  }
+
+  function deleteSelectedCustomer() {
+    var select = byId('offer-saved-customer');
+    if (select.value === '') {
+      alert('Valitse ensin poistettava asiakas.');
+      return;
+    }
+    var list = loadSavedCustomers();
+    list.splice(Number(select.value), 1);
+    persistSavedCustomers(list);
+    renderSavedCustomers();
+  }
 
   function printBaseSqmByArea(totalArea) {
     if (totalArea >= 15) return 43;
@@ -1678,6 +1772,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     byId('b-offer').addEventListener('click', downloadOfferXlsx, false);
     byId('muu-qty').addEventListener('input', updateMuuDiscountHint, false);
     byId('muu-qty').addEventListener('change', updateMuuDiscountHint, false);
+    byId('offer-saved-customer').addEventListener('change', applySelectedCustomer, false);
+    byId('offer-save-customer').addEventListener('click', saveCurrentCustomer, false);
+    byId('offer-delete-customer').addEventListener('click', deleteSelectedCustomer, false);
+    renderSavedCustomers();
     calcSiirto();
     calcPrintti();
     calcKate();
