@@ -279,7 +279,7 @@
   <section id="projekti" class="card panel hidden">
     <div class="section-head">PROJEKTIKORI</div>
     <div class="section">
-      <div class="sub" style="margin-bottom:16px;">Isoille teipeille ja projekteille. Lisää monta erikokoista tarraa samaan koriin. Neliöhinta määräytyy korin kokonaispinta-alan mukaan.</div>
+      <div class="sub" style="margin-bottom:16px;">Isoille teipeille ja projekteille. Lisää printtitarroja ja siirtokalvotarroja samaan koriin. Molempien neliöhinta määräytyy koko projektin kokonaispinta-alan mukaan, mutta tuotteilla on omat hintansa.</div>
 
       <div class="grid" style="margin-bottom:16px;">
         <div class="field">
@@ -298,7 +298,7 @@
 
       <div class="grid">
         <div class="field">
-          <label for="b-type">Korityyppi</label>
+          <label for="b-type">Lisättävä tuote</label>
           <select id="b-type">
             <option value="printti" selected>Printtitarrat</option>
             <option value="siirto">Siirtokalvotarrat</option>
@@ -396,10 +396,10 @@
         <div class="mini"><div class="k">Perus neliöhinta</div><div class="v" id="b-basesqm">0,00 €/m²</div></div>
         <div class="mini"><div class="k">Lopullinen neliöhinta</div><div class="v" id="b-sqm">0,00 €/m²</div></div>
         <div class="mini"><div class="k">Setup</div><div class="v" id="b-setup">0,00 €</div></div>
-        <div class="mini"><div class="k">Tyyppi</div><div class="v" id="b-type-label">Printtitarrat</div></div>
+        <div class="mini"><div class="k">Korin sisältö</div><div class="v" id="b-type-label">Printtitarrat</div></div>
       </div>
 
-      <div class="note">Korissa käytetään nykyistä valitun tuotetyypin hinnoittelua. Setup lisätään vain kerran koko korille. Korin rivikohtainen alennus pienentää kokonaishintaa, mutta alennusprosenttia ei tulosteta tarjoukseen. Printtikorissa laminointi ja siirtokalvo koskevat koko koria. Paperikorissa käsinleikkuu lisää 0,40 €/kpl.</div>
+      <div class="note">Korissa voi olla samaan aikaan printtitarroja ja siirtokalvotarroja. Neliöhintaportaat lasketaan koko projektin yhteispinta-alasta, mutta jokainen rivi käyttää omaa tuotetyyppiään ja lisävalintojaan. Setup lisätään kerran per tuotetyyppi. Korin rivikohtainen alennus pienentää kokonaishintaa, mutta alennusprosenttia ei tulosteta tarjoukseen.</div>
     </div>
   </section>
 
@@ -668,6 +668,215 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     return [0, 5, 10, 15, 20].indexOf(discount) >= 0 ? discount : 0;
   }
 
+  function projectTypeLabel(type) {
+    if (type === 'siirto') return 'Siirtokalvotarrat';
+    if (type === 'paperi') return 'Paperi';
+    return 'Printtitarrat';
+  }
+
+  function projectTypeShortLabel(type) {
+    if (type === 'siirto') return 'Siirtokalvo';
+    if (type === 'paperi') return 'Paperi';
+    return 'Printti';
+  }
+
+  function getProjectItemType(item) {
+    return item && item.type ? item.type : (projectType || 'printti');
+  }
+
+  function paperBaseSqmByArea(totalArea) {
+    if (totalArea >= 1.5) return 22;
+    if (totalArea >= 1.0) return 25;
+    if (totalArea >= 0.5) return 30;
+    return 35;
+  }
+
+  function lamAddByValue(value) {
+    if (value === 'normaali') return 7;
+    if (value === 'mx') return 40;
+    return 0;
+  }
+
+  function materialLabel(value) {
+    return value === 'valu' ? 'Valukalvo' : 'Polymeerikalvo';
+  }
+
+  function lamLabel(value) {
+    if (value === 'normaali') return 'Normaali laminointi';
+    if (value === 'mx') return 'MX laminointi';
+    return 'Ei laminointia';
+  }
+
+  function transferLabel(value) {
+    return value === 'kylla' ? 'siirtokalvo' : 'ei siirtokalvoa';
+  }
+
+  function handLabel(value) {
+    return value === 'kylla' ? 'käsinleikkuu' : 'ei käsinleikkuuta';
+  }
+
+  function setupByProjectType(type) {
+    if (type === 'siirto') return 24;
+    if (type === 'paperi') return 5;
+    return 16;
+  }
+
+  function summarizeSqmValues(values) {
+    if (!values.length) return '0,00 €/m²';
+    var min = values[0];
+    var max = values[0];
+    for (var i = 1; i < values.length; i++) {
+      if (values[i] < min) min = values[i];
+      if (values[i] > max) max = values[i];
+    }
+    if (Math.abs(min - max) < 0.005) return num2(min) + ' €/m²';
+    return num2(min) + '–' + num2(max) + ' €/m²';
+  }
+
+  function formatProjectSqmSummary(valuesByType) {
+    var parts = [];
+    if (valuesByType.printti.length) parts.push('Printti ' + summarizeSqmValues(valuesByType.printti));
+    if (valuesByType.siirto.length) parts.push('Siirto ' + summarizeSqmValues(valuesByType.siirto));
+    if (valuesByType.paperi.length) parts.push('Paperi ' + summarizeSqmValues(valuesByType.paperi));
+    return parts.length ? parts.join(' · ') : '0,00 €/m²';
+  }
+
+  function formatProjectTypeSummary(qtyByType) {
+    var parts = [];
+    if (qtyByType.printti > 0) parts.push('Printti');
+    if (qtyByType.siirto > 0) parts.push('Siirtokalvo');
+    if (qtyByType.paperi > 0) parts.push('Paperi');
+    return parts.length ? parts.join(' + ') : projectTypeLabel(byId('b-type').value);
+  }
+
+  function printOptionsText(item) {
+    return materialLabel(item.material) + ', ' + lamLabel(item.lam).toLowerCase() + ', ' + transferLabel(item.transfer);
+  }
+
+  function projectItemOptionText(item) {
+    var type = getProjectItemType(item);
+    if (type === 'printti') return printOptionsText(item);
+    if (type === 'paperi') return handLabel(item.hand);
+    return '';
+  }
+
+  function printItemBaseSqm(baseSqm, item) {
+    var itemBaseSqm = baseSqm;
+    if (item.material === 'valu' && itemBaseSqm < 80) itemBaseSqm = 80;
+    return itemBaseSqm;
+  }
+
+  function getProjectPricing() {
+    var totalArea = 0;
+    var totalQty = 0;
+    var areaByType = { printti: 0, siirto: 0, paperi: 0 };
+    var qtyByType = { printti: 0, siirto: 0, paperi: 0 };
+
+    for (var i = 0; i < projectBasket.length; i++) {
+      var item = projectBasket[i];
+      var type = getProjectItemType(item);
+      var itemTotalArea = item.area * item.qty;
+      totalArea += itemTotalArea;
+      totalQty += item.qty;
+      if (areaByType[type] == null) areaByType[type] = 0;
+      if (qtyByType[type] == null) qtyByType[type] = 0;
+      areaByType[type] += itemTotalArea;
+      qtyByType[type] += item.qty;
+    }
+
+    var printBaseSqm = totalArea > 0 ? printBaseSqmByArea(totalArea) : 0;
+    var siirtoBaseSqm = totalArea > 0 ? siirtoSqmByAreaAndQty(totalArea, Math.max(1, qtyByType.siirto)) : 0;
+    var paperBaseSqm = totalArea > 0 ? paperBaseSqmByArea(totalArea) : 0;
+    var setupTotal = 0;
+
+    if (qtyByType.printti > 0) setupTotal += setupByProjectType('printti');
+    if (qtyByType.siirto > 0) setupTotal += setupByProjectType('siirto');
+    if (qtyByType.paperi > 0) setupTotal += setupByProjectType('paperi');
+
+    var siirtoMinActive = false;
+    if (qtyByType.siirto > 0) {
+      var normalSiirtoAverage = (setupByProjectType('siirto') + areaByType.siirto * siirtoBaseSqm) / qtyByType.siirto;
+      siirtoMinActive = normalSiirtoAverage < 0.6;
+    }
+
+    var baseValuesByType = { printti: [], siirto: [], paperi: [] };
+    var sqmValuesByType = { printti: [], siirto: [], paperi: [] };
+    var lines = [];
+    var total0 = 0;
+
+    for (var j = 0; j < projectBasket.length; j++) {
+      var rowItem = projectBasket[j];
+      var rowType = getProjectItemType(rowItem);
+      var baseSqm = 0;
+      var sqm = 0;
+      var setupPerPiece = qtyByType[rowType] > 0 ? setupByProjectType(rowType) / qtyByType[rowType] : 0;
+      var unit0 = 0;
+      var optionText = projectItemOptionText(rowItem);
+
+      if (rowType === 'siirto') {
+        baseSqm = siirtoBaseSqm;
+        sqm = baseSqm;
+        unit0 = rowItem.area * sqm + setupPerPiece;
+        if (siirtoMinActive) unit0 = 0.6;
+      } else if (rowType === 'paperi') {
+        baseSqm = paperBaseSqm;
+        sqm = baseSqm;
+        unit0 = rowItem.area * sqm + setupPerPiece;
+        if (rowItem.hand === 'kylla') unit0 += 0.4;
+      } else {
+        baseSqm = printItemBaseSqm(printBaseSqm, rowItem);
+        sqm = baseSqm + lamAddByValue(rowItem.lam) + (rowItem.transfer === 'kylla' ? 5 : 0);
+        unit0 = rowItem.area * sqm + setupPerPiece;
+      }
+
+      var discount = validDiscount(rowItem.discount);
+      unit0 = unit0 * (1 - discount / 100);
+      var rowTotal0 = unit0 * rowItem.qty;
+      total0 += rowTotal0;
+
+      if (baseValuesByType[rowType]) baseValuesByType[rowType].push(baseSqm);
+      if (sqmValuesByType[rowType]) sqmValuesByType[rowType].push(sqm);
+
+      lines[j] = {
+        type: rowType,
+        typeLabel: projectTypeLabel(rowType),
+        shortTypeLabel: projectTypeShortLabel(rowType),
+        width: rowItem.width,
+        height: rowItem.height,
+        qty: rowItem.qty,
+        area: rowItem.area,
+        totalArea: rowItem.area * rowItem.qty,
+        baseSqm: baseSqm,
+        sqm: sqm,
+        unit0: unit0,
+        unit25: unit0 * 1.255,
+        total0: rowTotal0,
+        total25: rowTotal0 * 1.255,
+        discount: discount,
+        optionText: optionText,
+        description: projectTypeLabel(rowType) + ' ' + rowItem.width + ' × ' + rowItem.height + ' mm' + (optionText ? ' (' + optionText + ')' : ''),
+        unit: 'kpl',
+        unitPrice0: unit0,
+        vatRate: 0.255,
+        vat: rowTotal0 * 0.255
+      };
+    }
+
+    return {
+      totalArea: totalArea,
+      totalQty: totalQty,
+      total0: total0,
+      vat: total0 * 0.255,
+      total25: total0 * 1.255,
+      setupTotal: setupTotal,
+      qtyByType: qtyByType,
+      baseSqmSummary: formatProjectSqmSummary(baseValuesByType),
+      sqmSummary: formatProjectSqmSummary(sqmValuesByType),
+      typeSummary: formatProjectTypeSummary(qtyByType),
+      lines: lines
+    };
+  }
+
 
   function applyProjectPaperQuickSize() {
     if (byId('b-type').value !== 'paperi') return;
@@ -697,27 +906,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function setProjectTypeIfEmpty() {
-    var selectedType = byId('b-type').value;
-    if (projectBasket.length === 0) {
-      projectType = selectedType;
-      updateProjectFields();
-      calcProjectBasket();
-      return true;
-    }
-    if (selectedType !== projectType) {
-      alert('Korissa on jo eri tyyppisiä tarroja. Tyhjennä kori ennen kuin vaihdat tyyppiä.');
-      byId('b-type').value = projectType;
-      updateProjectFields();
-      return false;
-    }
+    projectType = byId('b-type').value;
     updateProjectFields();
+    calcProjectBasket();
     return true;
   }
 
   function addProjectItem() {
-    if (!setProjectTypeIfEmpty()) return;
+    setProjectTypeIfEmpty();
     applyProjectPaperQuickSize();
 
+    var type = byId('b-type').value;
     var width = safe(byId('b-width').value, 0);
     var height = safe(byId('b-height').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('b-qty').value, 1)));
@@ -729,13 +928,29 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
 
     var area = (width / 1000) * (height / 1000);
-    projectBasket.push({ width: width, height: height, qty: qty, area: area, discount: discount });
+    var item = {
+      type: type,
+      width: width,
+      height: height,
+      qty: qty,
+      area: area,
+      discount: discount
+    };
+
+    if (type === 'printti') {
+      item.material = byId('b-material').value;
+      item.lam = byId('b-lam').value;
+      item.transfer = byId('b-transfer').value;
+    } else if (type === 'paperi') {
+      item.hand = byId('b-paper-hand').value;
+    }
+
+    projectBasket.push(item);
     calcProjectBasket();
   }
 
   function removeProjectItem(index) {
     projectBasket.splice(index, 1);
-    if (projectBasket.length === 0) projectType = byId('b-type').value;
     calcProjectBasket();
   }
 
@@ -753,77 +968,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
   function calcProjectBasket() {
     var list = byId('b-list');
-    var totalArea = 0;
-    var totalQty = 0;
+    var calc = getProjectPricing();
 
-    for (var i = 0; i < projectBasket.length; i++) {
-      totalArea += projectBasket[i].area * projectBasket[i].qty;
-      totalQty += projectBasket[i].qty;
-    }
-
-    var type = projectBasket.length > 0 ? projectType : byId('b-type').value;
-    var setup = type === 'siirto' ? 24 : (type === 'paperi' ? 5 : 16);
-    var baseSqm = 0;
-    var sqm = 0;
-
-    if (totalArea > 0) {
-      if (type === 'siirto') {
-        baseSqm = siirtoSqmByAreaAndQty(totalArea, totalQty);
-        sqm = baseSqm;
-      } else if (type === 'paperi') {
-        if (totalArea >= 1.5) baseSqm = 22;
-        else if (totalArea >= 1.0) baseSqm = 25;
-        else if (totalArea >= 0.5) baseSqm = 30;
-        else baseSqm = 35;
-        sqm = baseSqm;
-      } else {
-        baseSqm = printBaseSqmByArea(totalArea);
-        var material = byId('b-material').value;
-        if (material === 'valu' && baseSqm < 80) baseSqm = 80;
-        var lam = byId('b-lam').value;
-        var transfer = byId('b-transfer').value;
-        var lamAdd = 0;
-        if (lam === 'normaali') lamAdd = 7;
-        else if (lam === 'mx') lamAdd = 40;
-        var transferAdd = transfer === 'kylla' ? 5 : 0;
-        sqm = baseSqm + lamAdd + transferAdd;
-      }
-    }
-
-    var linePrices = [];
-    var total0 = 0;
-
-    if (totalArea > 0 && totalQty > 0) {
-      var setupPerPiece = setup / totalQty;
-      var handAddPerPiece = type === 'paperi' && byId('b-paper-hand').value === 'kylla' ? 0.4 : 0;
-      var siirtoMinActive = false;
-      if (type === 'siirto') {
-        var normalPieceAverage = (setup + totalArea * sqm) / totalQty;
-        siirtoMinActive = normalPieceAverage < 0.6;
-      }
-
-      for (var lp = 0; lp < projectBasket.length; lp++) {
-        var priceItem = projectBasket[lp];
-        var unit0 = priceItem.area * sqm + setupPerPiece + handAddPerPiece;
-        if (siirtoMinActive) unit0 = 0.6;
-        var discount = validDiscount(priceItem.discount);
-        unit0 = unit0 * (1 - discount / 100);
-        var rowTotal0 = unit0 * priceItem.qty;
-        total0 += rowTotal0;
-        linePrices[lp] = { unit0: unit0, unit25: unit0 * 1.255, total0: rowTotal0, total25: rowTotal0 * 1.255, discount: discount };
-      }
-    }
-
-    var total25 = total0 * 1.255;
-
-    byId('b-total0').textContent = euroValue(total0);
-    byId('b-total25').textContent = euroValue(total25);
-    byId('b-totalarea').textContent = num3(totalArea) + ' m²';
-    byId('b-totalqty').textContent = String(totalQty);
-    byId('b-basesqm').textContent = num2(baseSqm) + ' €/m²';
-    byId('b-sqm').textContent = num2(sqm) + ' €/m²';
-    byId('b-setup').textContent = euroValue(totalArea > 0 ? setup : 0);
-    byId('b-type-label').textContent = type === 'siirto' ? 'Siirtokalvotarrat' : (type === 'paperi' ? 'Paperi' : 'Printtitarrat');
+    byId('b-total0').textContent = euroValue(calc.total0);
+    byId('b-total25').textContent = euroValue(calc.total25);
+    byId('b-totalarea').textContent = num3(calc.totalArea) + ' m²';
+    byId('b-totalqty').textContent = String(calc.totalQty);
+    byId('b-basesqm').textContent = calc.baseSqmSummary;
+    byId('b-sqm').textContent = calc.sqmSummary;
+    byId('b-setup').textContent = euroValue(calc.totalArea > 0 ? calc.setupTotal : 0);
+    byId('b-type-label').textContent = calc.typeSummary;
 
     if (projectBasket.length === 0) {
       list.innerHTML = '<div class="note">Kori on tyhjä.</div>';
@@ -833,13 +987,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     var rows = '';
     for (var j = 0; j < projectBasket.length; j++) {
       var item = projectBasket[j];
-      var itemTotalArea = item.area * item.qty;
-      var price = linePrices[j] || { unit0: 0, unit25: 0, total0: 0, total25: 0, discount: validDiscount(item.discount) };
+      var price = calc.lines[j] || { unit0: 0, unit25: 0, total0: 0, total25: 0, discount: validDiscount(item.discount), sqm: 0, baseSqm: 0, optionText: '', shortTypeLabel: projectTypeShortLabel(getProjectItemType(item)) };
       rows += '<div class="basket-row">'
         + '<div>'
-        + '<div class="basket-main">' + item.width + ' × ' + item.height + ' mm · ' + item.qty + ' kpl</div>'
-        + '<div class="basket-sub">Pinta-ala / kpl: ' + num3(item.area) + ' m² · yhteensä: ' + num3(itemTotalArea) + ' m²</div>'
-        + '<div class="basket-sub">Yksikköhinta: ' + euroValue(price.unit0) + ' alv 0 % / ' + euroValue(price.unit25) + ' alv 25,5 % · rivin yhteensä: ' + euroValue(price.total0) + ' alv 0 %</div>'
+        + '<div class="basket-main">' + price.shortTypeLabel + ' · ' + item.width + ' × ' + item.height + ' mm · ' + item.qty + ' kpl</div>'
+        + '<div class="basket-sub">Pinta-ala / kpl: ' + num3(item.area) + ' m² · yhteensä: ' + num3(price.totalArea || (item.area * item.qty)) + ' m²</div>'
+        + (price.optionText ? '<div class="basket-sub">Valinnat: ' + price.optionText + '</div>' : '')
+        + '<div class="basket-sub">Neliöhinta: ' + num2(price.sqm) + ' €/m² · yksikköhinta: ' + euroValue(price.unit0) + ' alv 0 % / ' + euroValue(price.unit25) + ' alv 25,5 % · rivin yhteensä: ' + euroValue(price.total0) + ' alv 0 %</div>'
         + '</div>'
         + '<div class="basket-discount"><label>Alennus</label><select onchange="updateProjectItemDiscount(' + j + ', this.value)">'
         + '<option value="0"' + (price.discount === 0 ? ' selected' : '') + '>Ei</option>'
@@ -1035,82 +1189,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function getProjectOfferCalc() {
-    var totalArea = 0;
-    var totalQty = 0;
-
-    for (var i = 0; i < projectBasket.length; i++) {
-      totalArea += projectBasket[i].area * projectBasket[i].qty;
-      totalQty += projectBasket[i].qty;
-    }
-
-    var type = projectBasket.length > 0 ? projectType : byId('b-type').value;
-    var setup = type === 'siirto' ? 24 : (type === 'paperi' ? 5 : 16);
-    var baseSqm = 0;
-    var sqm = 0;
-    var typeLabel = type === 'siirto' ? 'Siirtokalvotarrat' : (type === 'paperi' ? 'Paperi' : 'Printtitarrat');
-
-    if (totalArea > 0) {
-      if (type === 'siirto') {
-        baseSqm = siirtoSqmByAreaAndQty(totalArea, totalQty);
-        sqm = baseSqm;
-      } else if (type === 'paperi') {
-        if (totalArea >= 1.5) baseSqm = 22;
-        else if (totalArea >= 1.0) baseSqm = 25;
-        else if (totalArea >= 0.5) baseSqm = 30;
-        else baseSqm = 35;
-        sqm = baseSqm;
-      } else {
-        baseSqm = printBaseSqmByArea(totalArea);
-        var material = byId('b-material').value;
-        if (material === 'valu' && baseSqm < 80) baseSqm = 80;
-        var lam = byId('b-lam').value;
-        var transfer = byId('b-transfer').value;
-        var lamAdd = 0;
-        if (lam === 'normaali') lamAdd = 7;
-        else if (lam === 'mx') lamAdd = 40;
-        var transferAdd = transfer === 'kylla' ? 5 : 0;
-        sqm = baseSqm + lamAdd + transferAdd;
-      }
-    }
-
-    var setupPerPiece = totalQty > 0 && totalArea > 0 ? setup / totalQty : 0;
-    var handAddPerPiece = type === 'paperi' && byId('b-paper-hand').value === 'kylla' ? 0.4 : 0;
-    var siirtoMinActive = false;
-    if (type === 'siirto' && totalQty > 0) {
-      var normalPieceAverage = (setup + totalArea * sqm) / totalQty;
-      siirtoMinActive = normalPieceAverage < 0.6;
-    }
-
-    var lines = [];
-    var sum0 = 0;
-    for (var j = 0; j < projectBasket.length; j++) {
-      var item = projectBasket[j];
-      var itemPiece0 = item.area * sqm + setupPerPiece + handAddPerPiece;
-      if (siirtoMinActive) itemPiece0 = 0.6;
-      var discount = validDiscount(item.discount);
-      itemPiece0 = itemPiece0 * (1 - discount / 100);
-      var rowTotal0 = itemPiece0 * item.qty;
-      sum0 += rowTotal0;
-      lines.push({
-        description: typeLabel + ' ' + item.width + ' × ' + item.height + ' mm',
-        qty: item.qty,
-        unit: 'kpl',
-        unitPrice0: itemPiece0,
-        vatRate: 0.255,
-        vat: rowTotal0 * 0.255,
-        total25: rowTotal0 * 1.255,
-        discount: discount
-      });
-    }
-
-    return {
-      type: type,
-      typeLabel: typeLabel,
-      total0: sum0,
-      vat: sum0 * 0.255,
-      total25: sum0 * 1.255,
-      lines: lines
-    };
+    return getProjectPricing();
   }
 
   async function removeOldCalcChain(zip) {
