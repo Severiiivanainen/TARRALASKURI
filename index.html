@@ -1115,12 +1115,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
     var setup = 24;
-    var sqm = 72;
-
-    if (totalArea < 0.5) sqm = 79;
-    else if (qty <= 4) sqm = 79;
-    else if (qty <= 9) sqm = 75;
-    else sqm = 72;
+    var sqm = siirtoSqmByArea(totalArea);
 
     sqm += weedingSqmAdjust(weeding);
 
@@ -1331,11 +1326,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     return 105;
   }
 
-  function siirtoSqmByAreaAndQty(totalArea, totalQty) {
+  function siirtoSqmByArea(totalArea) {
     if (totalArea < 0.5) return 79;
-    if (totalQty <= 4) return 79;
-    if (totalQty <= 9) return 75;
-    return 72;
+    if (totalArea < 1) return 75;
+    if (totalArea < 2) return 72;
+    return 70;
   }
 
   function validDiscount(value) {
@@ -1503,7 +1498,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     }
 
     var printBaseSqm = totalArea > 0 ? printBaseSqmByArea(totalArea) : 0;
-    var siirtoBaseSqm = totalArea > 0 ? siirtoSqmByAreaAndQty(totalArea, Math.max(1, qtyByType.siirto)) : 0;
+    var siirtoBaseSqm = totalArea > 0 ? siirtoSqmByArea(totalArea) : 0;
     var paperBaseSqm = totalArea > 0 ? paperBaseSqmByArea(totalArea) : 0;
     var setupInfo = setupInfoByProjectTypes(qtyByType);
     var setupTotal = setupInfo.total;
