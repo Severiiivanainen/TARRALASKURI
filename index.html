@@ -112,6 +112,14 @@
           <label for="s-qty">Kappalemäärä</label>
           <input id="s-qty" type="text" inputmode="numeric" value="5">
         </div>
+        <div class="field">
+          <label for="s-weeding">Perkaus</label>
+          <select id="s-weeding">
+            <option value="helppo">Helposti perattava</option>
+            <option value="normaali" selected>Normaali</option>
+            <option value="haastava">Haastava perattava</option>
+          </select>
+        </div>
       </div>
 
       <div class="results">
@@ -398,6 +406,14 @@
           <div class="field">
             <label for="bsi-qty">Kappalemäärä</label>
             <input id="bsi-qty" type="text" inputmode="numeric" value="5">
+          </div>
+          <div class="field">
+            <label for="bsi-weeding">Perkaus</label>
+            <select id="bsi-weeding">
+              <option value="helppo">Helposti perattava</option>
+              <option value="normaali" selected>Normaali</option>
+              <option value="haastava">Haastava perattava</option>
+            </select>
           </div>
           <div class="field">
             <label for="bsi-discount">Alennus</label>
@@ -1073,10 +1089,29 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   function byId(id) { return document.getElementById(id); }
 
+  function weedingSqmAdjust(value) {
+    if (value === 'helppo') return -10;
+    if (value === 'haastava') return 10;
+    return 0;
+  }
+
+  function weedingMinPiece(value) {
+    if (value === 'helppo') return 0.4;
+    if (value === 'haastava') return 0.8;
+    return 0.6;
+  }
+
+  function weedingLabel(value) {
+    if (value === 'helppo') return 'Helposti perattava';
+    if (value === 'haastava') return 'Haastava perattava';
+    return 'Normaali';
+  }
+
   function calcSiirto() {
     var width = safe(byId('s-width').value, 0);
     var height = safe(byId('s-height').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('s-qty').value, 1)));
+    var weeding = byId('s-weeding').value;
     var area = (width / 1000) * (height / 1000);
     var totalArea = area * qty;
     var setup = 24;
@@ -1087,11 +1122,14 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     else if (qty <= 9) sqm = 75;
     else sqm = 72;
 
+    sqm += weedingSqmAdjust(weeding);
+
     var total0 = setup + area * qty * sqm;
     var piece0 = total0 / qty;
 
-    if (piece0 < 0.6) {
-      piece0 = 0.6;
+    var minPiece = weedingMinPiece(weeding);
+    if (piece0 < minPiece) {
+      piece0 = minPiece;
       total0 = piece0 * qty;
     }
 
@@ -1436,6 +1474,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var type = getProjectItemType(item);
     if (type === 'printti') return printOptionsText(item);
     if (type === 'paperi') return handLabel(item.hand);
+    if (type === 'siirto') return weedingLabel(item.weeding);
     return '';
   }
 
@@ -1469,12 +1508,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var setupInfo = setupInfoByProjectTypes(qtyByType);
     var setupTotal = setupInfo.total;
 
-    var siirtoMinActive = false;
-    if (qtyByType.siirto > 0) {
-      var normalSiirtoAverage = (setupInfo.byType.siirto + areaByType.siirto * siirtoBaseSqm) / qtyByType.siirto;
-      siirtoMinActive = normalSiirtoAverage < 0.6;
-    }
-
     var baseValuesByType = { printti: [], siirto: [], paperi: [] };
     var sqmValuesByType = { printti: [], siirto: [], paperi: [] };
     var lines = [];
@@ -1491,9 +1524,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
       if (rowType === 'siirto') {
         baseSqm = siirtoBaseSqm;
-        sqm = baseSqm;
+        sqm = baseSqm + weedingSqmAdjust(rowItem.weeding);
         unit0 = rowItem.area * sqm + setupPerPiece;
-        if (siirtoMinActive) unit0 = 0.6;
+        var siirtoMinPiece = weedingMinPiece(rowItem.weeding);
+        if (unit0 < siirtoMinPiece) unit0 = siirtoMinPiece;
       } else if (rowType === 'paperi') {
         baseSqm = paperBaseSqm;
         sqm = baseSqm;
@@ -1601,6 +1635,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var height = safe(byId('bsi-height').value, 0);
     var qty = Math.max(1, Math.round(safe(byId('bsi-qty').value, 1)));
     var discount = validDiscount(byId('bsi-discount').value);
+    var weeding = byId('bsi-weeding').value;
 
     if (width <= 0 || height <= 0 || qty <= 0) {
       alert('Syötä leveys, korkeus ja kappalemäärä.');
@@ -1613,7 +1648,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       height: height,
       qty: qty,
       area: (width / 1000) * (height / 1000),
-      discount: discount
+      discount: discount,
+      weeding: weeding
     });
     calcProjectBasket();
   }
@@ -2285,7 +2321,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
 
   function init() {
-    bindCalc('#siirto input', calcSiirto);
+    bindCalc('#siirto input, #siirto select', calcSiirto);
     bindCalc('#printti input, #printti select', calcPrintti);
     bindCalc('#kate input, #kate select', calcKate);
     bindCalc('#ale input, #ale select', calcAle);
